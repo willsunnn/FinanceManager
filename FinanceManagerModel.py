@@ -6,7 +6,7 @@ from pathlib import Path
 class FinanceManagerModel:
     def __init__(self, month: int, year: int):
         #save data for reference
-        self.fileName = FinanceManager.formatDate(month,year)
+        self.fileName = FinanceManagerModel.formatDate(month,year)
         self.databasePath = databaseFileLocations+self.fileName+".db"
         self.db = None
 
@@ -27,12 +27,12 @@ class FinanceManagerModel:
     def constructTables(self):
         self.db = sqlite3.Connection(self.databasePath)
         self.db.execute("CREATE TABLE IF NOT EXISTS initialBalances("
-                        "id INTEGER PRIMARY KEY AUTOINCREMENT"
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                         "source VARCHAR(255), "
                         "amount INTEGER"
                         ");")
         self.db.execute("CREATE TABLE IF NOT EXISTS currentBalances("
-                        "id INTEGER PRIMARY KEY AUTOINCREMENT"
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                         "source VARCHAR(255), "
                         "amount INTEGER"
                         ");")
@@ -42,6 +42,7 @@ class FinanceManagerModel:
                         "name VARCHAR(255),"
                         "type VARCHAR(255)"
                         ");")
+        self.db.commit()
 
     # reconnects the sql tables from the document to the python object
     def accessTables(self):
@@ -65,31 +66,33 @@ class FinanceManagerModel:
     # takes a dictionary with key balanceName, and value amount
     # sets the table of balances in sql file to reflect balanceDict
     def setBalances(self, balanceDict: {str:int}, isInitial):
-        if isInitial:
+        if isInitial:                                       #choose the table to edit
             tableName = "initialBalances"
         else:
             tableName = "currentBalances"
-
-        #clear the table values
-        self.clearTable(tableName)
-
-        #add the new table values
-        for balanceName, value in balanceDict.items():
+        self.clearTable(tableName)                          #clear the table values
+        for balanceName, value in balanceDict.items():      #add the new table values
             self.db.execute("INSERT INTO {} (source, amount) VALUES((?), (?));".format(tableName), [balanceName, value])
             self.db.commit()
-
 
     # clears the table with the name tableName
     def clearTable(self, tableName: str):
         self.db.execute("DELETE FROM {};".format(tableName))
         self.db.commit()
 
-    # returns the date formatted as YYYY-MM so it's chronological by alphabetical
+    # clears all the databases
+    def clearDatabase(self):
+        self.clearTable("expenditures")
+        self.clearTable("initialBalances")
+        self.clearTable("currentBalances")
+
+    # returns the date formatted as YYYY-MM so it's chronological when sorted alphabetically
     def formatDate(month: int, year: int):
-        if(month<10):      #if month is single digit
+        if (month < 10):  # if month is single digit
             month = "0{}".format(month)
         return "{}-{}".format(year, month)
 
+    # fetches the databases in the form of a matrix
     def fetchExpenditures(self):
         return self.db.execute("SELECT * FROM expenditures").fetchall()
 
@@ -99,27 +102,32 @@ class FinanceManagerModel:
     def fetchCurrentBalances(self):
         return self.db.execute("SELECT * FROM currentBalances").fetchall()
 
-    # prints the expenditure database for troubleshooting
-    def printDatabase(self):
-        print(self.fetchExpenditures())
-        print(self.fetchInitialBalances())
-        print(self.fetchCurrentBalances())
-
+    # returns a matrix containing the expenditure by type
     def getExpenditureByType(self):
         return self.db.execute("SELECT type, SUM(amount) FROM expenditures GROUP BY type;").fetchall()
 
+    # prints the expenditure database for troubleshooting
+    def printDatabase(self):
+        print(self.fetchInitialBalances())
+        print(self.fetchCurrentBalances())
+        self.printExpenditureTable()
+
+    # prints the table of expenditures using String formatting
     def printExpenditureTable(self):
         stringFormat = "{:10} | {:30} | {:10}"
         print(stringFormat.format("amount","name","type"))
         for row in self.fetchExpenditures():
             print(stringFormat.format(row[1],row[2],row[3]))
 
-fm = FinanceManager(8, 2000)
-fm.addExpenditure(100, "jack in the box", "food")
-fm.addExpenditure(50, "gas", "necessity")
-fm.setInitialBalances({
-    "checking account":500,
-    "venmo":75
-})
-fm.printDatabase()
-fm.printExpenditureTable()
+def test():
+    fm = FinanceManagerModel(10, 2018)
+    fm.clearDatabase()
+    fm.addExpenditure(10.72, "Magic Eraser", "Shopping")
+    fm.addExpenditure(7.80, "Chick-fil-a", "Food")
+    fm.setInitialBalances({
+        "Checking Account":797.87,
+        "venmo":0
+    })
+    fm.printDatabase()
+
+test()
