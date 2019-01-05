@@ -109,8 +109,8 @@ class FinanceManagerModel:
     # prints the expenditure database for troubleshooting
     def printDatabase(self):
         print(self.fetchInitialBalances())
-        print(self.fetchCurrentBalances())
         self.printExpenditureTable()
+        print(self.fetchCurrentBalances())
 
     # prints the table of expenditures using String formatting
     def printExpenditureTable(self):
@@ -119,15 +119,3 @@ class FinanceManagerModel:
         for row in self.fetchExpenditures():
             print(stringFormat.format(row[1],row[2],row[3]))
 
-def test():
-    fm = FinanceManagerModel(10, 2018)
-    fm.clearDatabase()
-    fm.addExpenditure(10.72, "Magic Eraser", "Shopping")
-    fm.addExpenditure(7.80, "Chick-fil-a", "Food")
-    fm.setInitialBalances({
-        "Checking Account":797.87,
-        "venmo":0
-    })
-    fm.printDatabase()
-
-test()
