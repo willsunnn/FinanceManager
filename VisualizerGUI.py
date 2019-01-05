@@ -1,8 +1,9 @@
 import tkinter
+from tkinter.ttk import Separator
 from DateSelectionWidget import *
-from TableWidget import *
 from BalanceWidget import *
 from ExpenditureWidget import *
+from FinanceManagerModel import *
 
 defaultfg = 'white'
 defaultbg = 'black'
@@ -12,24 +13,29 @@ class DataVisualizer():
         self.tk = tk
 
         # at the top create a date selection menu
-        dateSelect = DateSelectionWidget(tk)
-        dateSelect.addListener(self)
-        dateSelect.pack()
+        self.dateSelect = DateSelectionWidget(tk)
+        self.dateSelect.addListener(self)
+        self.dateSelect.pack()
 
         # create an initial balance table
-        initialBalance = TableWidget(tk, 5, 2, invertAxis=True)
-        initialBalance.pack()
+        self.initialBalance = BalanceWidget(tk, name='Initial Balance')
+        self.initialBalance.pack()
 
         # create an expenditure table
-        expenditures = ExpenditureWidget(tk)
-        expenditures.pack()
+        self.expenditures = ExpenditureWidget(tk)
+        self.expenditures.pack()
 
         # create a final balances table
-        finalBalance = BalanceWidget(tk)
-        finalBalance.pack()
+        self.currentBalance = BalanceWidget(tk, name='Current Balance')
+        self.currentBalance.pack()
 
     def loadTableData(self, date: {str:int}):
-        print(date)
+        self.databases = FinanceManagerModel(date['month'], date['year'])
+
+        self.initialBalance.setBalances(self.databases.fetchInitialBalances())
+        self.currentBalance.setBalances(self.databases.fetchCurrentBalances())
+
+
 
 
 def main():

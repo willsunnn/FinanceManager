@@ -1,14 +1,14 @@
 import tkinter
 
 class TableWidget(tkinter.Frame):
-    def __init__(self, parent, colSize, defaultRowSize, **keyword_parameters):
+    def __init__(self, parent, colSize, defaultRowSize, **optional_arguments):
         tkinter.Frame.__init__(self, parent)
         self.colSize = colSize              # col size should remain constant
         self.rowSize = defaultRowSize       # rows can be inserted, hence the use of a linkedlist (unless axis is inverted)
         self.table = linkedList([[None for i in range(colSize)] for j in range(defaultRowSize)])
 
-        if 'invertAxis' in keyword_parameters:
-            self.invertAxis = True
+        if 'invertAxis' in optional_arguments:
+            self.invertAxis = optional_arguments['invertAxis']
         else:
             self.invertAxis = False
 
@@ -18,12 +18,10 @@ class TableWidget(tkinter.Frame):
         for row in self.table.toList():
             print(row, end='\n')
 
-    def setValue(self, value, row, col):
-        row = self.table.getNodeAt(row).value
-        row[col] = value
-
-    def setTable(self, matrix :[[]]):
-        print('not implemented yet :(')
+    def setValue(self, value, rowIndex, colIndex):
+        row = self.table.getNodeAt(rowIndex).value
+        row[colIndex] = value
+        self.updateLabel(rowIndex, colIndex)
 
     def addLabels(self):
         # update length in case the table increased in rows
@@ -40,12 +38,10 @@ class TableWidget(tkinter.Frame):
                 else:
                     label.grid(row=rowIndex, column=colIndex)
 
-    def updateLabels(self):
+    def updateLabel(self, rowIndex, colIndex):
         matrix = self.table.toList()
-        for rowIndex in range(self.rowSize):
-            for colIndex in range(self.colSize):
-                label = self.displayMatrix[rowIndex][colIndex]
-                label.config(text=matrix[rowIndex][colIndex])
+        label = self.displayMatrix[rowIndex][colIndex]
+        label.config(text=matrix[rowIndex][colIndex])
 
 
 class linkedList():

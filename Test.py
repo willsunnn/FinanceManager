@@ -14,11 +14,11 @@ def financeManagerModelTest():
     fm.addExpenditure(7.80, "Chick-fil-a", "Food")
     fm.setInitialBalances({
         "Checking Account":800,
-        "venmo":0
+        "Venmo":0
     })
     fm.setCurrentBalances({
         "Checking Account":400,
-        "venmo":50
+        "Venmo":50
     })
     fm.printDatabase()
 
@@ -32,7 +32,7 @@ def linkedListTest():
     assert ll.toList() == l
 
 def tableTest():
-    t = tkTable(tkinter.Tk(), 5, 2)
+    t = TableWidget(tkinter.Tk(), 5, 2)
     t.printTable()
 
     t.setValue(5, 0, 2)
