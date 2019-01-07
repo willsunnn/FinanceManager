@@ -2,6 +2,8 @@ import tkinter
 from TableWidget import *
 
 defaultFieldCount = 4
+defaultFirstColWidth = 10
+defaultFieldColWidth = 7
 
 class BalanceWidget(tkinter.Frame):
     def __init__(self, parent, **optional_arguments):
@@ -17,24 +19,20 @@ class BalanceWidget(tkinter.Frame):
         self.headLabel.pack()
 
         # adds the balance table
-        self.balanceTable = TableWidget(self, 2, self.fieldCount+1, invertAxis=True)
+        tableCellWidth = [[defaultFirstColWidth,defaultFirstColWidth]]+[[defaultFieldColWidth,defaultFieldColWidth] for x in range(self.fieldCount)]
+        self.balanceTable = TableWidget(self, 2, self.fieldCount+1, invertAxis=True, widthTable=tableCellWidth,additionalCellWidth=defaultFieldColWidth)
         self.balanceTable.setValue('Source', 0, 0)
         self.balanceTable.setValue('Balance', 0, 1)
         self.balanceTable.pack()
 
     def setBalances(self, balanceMatrix: [[]]):
         print(balanceMatrix)
-        if len(balanceMatrix) > defaultFieldCount:
-            print('make the table bigger')
-
         for entryNum in range(len(balanceMatrix)):
             displayRow = entryNum+1
             # insert the source name
-            print(balanceMatrix[entryNum][0])
             self.balanceTable.setValue(balanceMatrix[entryNum][1], displayRow, 0)
             # insert the balance
-            self.balanceTable.setValue(balanceMatrix[entryNum][2], displayRow, 1)
-            print(balanceMatrix[entryNum][1])
+            self.balanceTable.setValue("$"+str(balanceMatrix[entryNum][2]), displayRow, 1)
 
         for blankRow in range(len(balanceMatrix)+1,self.fieldCount+1):
             self.balanceTable.setValue('-', blankRow, 0)

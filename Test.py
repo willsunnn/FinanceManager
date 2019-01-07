@@ -8,16 +8,16 @@ def test():
     tableTest()
 
 def financeManagerModelTest():
-    fm = FinanceManagerModel(10, 2018)
+    fm = FinanceManagerModel(1, 2019)
     fm.clearDatabase()
     fm.addExpenditure(10.72, "Magic Eraser", "Shopping")
     fm.addExpenditure(7.80, "Chick-fil-a", "Food")
     fm.setInitialBalances({
-        "Checking Account":800,
+        "Checking":800,
         "Venmo":0
     })
     fm.setCurrentBalances({
-        "Checking Account":400,
+        "Checking":400,
         "Venmo":50
     })
     fm.printDatabase()

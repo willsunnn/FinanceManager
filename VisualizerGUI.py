@@ -5,15 +5,15 @@ from BalanceWidget import *
 from ExpenditureWidget import *
 from FinanceManagerModel import *
 
-defaultfg = 'white'
 defaultbg = 'black'
+defaultfg = 'white'
 
 class DataVisualizer():
     def __init__(self, tk: tkinter):
         self.tk = tk
 
         # at the top create a date selection menu
-        self.dateSelect = DateSelectionWidget(tk)
+        self.dateSelect = DateSelectionWidget(tk, fg=defaultfg, bg=defaultbg)
         self.dateSelect.addListener(self)
         self.dateSelect.pack()
 

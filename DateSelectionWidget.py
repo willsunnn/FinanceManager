@@ -11,24 +11,35 @@ present = datetime.datetime.now()
 defaultfg = 'white'
 defaultbg = 'black'
 
+defaultYearEntryWidth = 5
+
 class DateSelectionWidget(tkinter.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, **optional_arguments):
         tkinter.Frame.__init__(self, parent)
+
+        self.fgcol = defaultfg
+        self.bgcol = defaultbg
+
+        if 'fg' in optional_arguments:
+            self.fgcol = optional_arguments['fg']
+        if 'bg' in optional_arguments:
+            self.bgcol = optional_arguments['bg']
 
         # create the month selection dropdown menu
         self.monthVar = tkinter.StringVar(self)
         self.monthVar.set( calendar.month_name[present.month] )                                 #gets current month (as int), and then sets the name of the month
         self.monthSelect = tkinter.OptionMenu(self, self.monthVar, *list(monthDict.keys()))     #sets the month and the options
-        self.monthSelect.config(foreground=defaultfg, background=defaultbg)
+        self.monthSelect.config(foreground=self.fgcol, background=self.bgcol)
 
         # create the year selection
         self.yearSelect = tkinter.Entry(self)
         self.setYearEntryText(present.year)
-        self.yearSelect.config(fg=defaultfg, bg=defaultbg)
+        self.yearSelect.config(width=defaultYearEntryWidth)
+        self.yearSelect.config(fg=self.fgcol, bg=self.bgcol)
 
         # create the button to check and retrieve the dates
         self.retrieveButton = tkinter.Button(self, text="retrieve", command=lambda: self.buttonSubmit(),
-                                             fg=defaultbg, bg=defaultbg)
+                                             fg=self.fgcol, bg=self.bgcol)
 
         # organize monthSelect and yearSelect within the DateSelectionMenu Frame
         self.monthSelect.pack(side="left")
@@ -54,5 +65,4 @@ class DateSelectionWidget(tkinter.Frame):
 
     # returns a dictionary of the selected date
     def getDate(self) -> {str:int}:
-        print(self.monthVar.get())
         return {"month":monthDict[self.monthVar.get()], "year":int(self.yearSelect.get())}
