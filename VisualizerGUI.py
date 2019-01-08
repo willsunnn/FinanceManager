@@ -34,6 +34,7 @@ class DataVisualizer():
 
         self.initialBalance.setBalances(self.databases.fetchInitialBalances())
         self.currentBalance.setBalances(self.databases.fetchCurrentBalances())
+        self.expenditures.setExpenditures(self.databases.fetchExpenditures())
 
 
 
