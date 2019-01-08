@@ -3,6 +3,7 @@ import tkinter
 defaultCellWidth = 5
 defaultHeaderJustify = 'center'
 defaultEntryJustify = 'left'
+directionToCompass = {'center':'center', 'left':'w', "right":'e'}
 
 class TableWidget(tkinter.Frame):
     def __init__(self, parent, colSize, defaultRowSize, **optional_arguments):
@@ -122,11 +123,11 @@ class TableWidget(tkinter.Frame):
                 if rowIndex == 0:           #header row
                     if self.headFont != None:
                         label.config(font=self.headFont)
-                    label.config(justify=self.headJustify, text=self.headJustify)
+                    label.config(anchor=directionToCompass[self.headJustify])
                 else:                       #entry row
                     if self.entryFont != None:
                         label.config(font=self.entryFont)
-                    label.config(justify=self.entryJustify, text=self.entryJustify)
+                    label.config(anchor=directionToCompass[self.entryJustify])
 
                 #position the label
                 if self.invertAxis:
