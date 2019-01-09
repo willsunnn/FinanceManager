@@ -19,8 +19,6 @@ class ExpenditureWidget(tkinter.Frame):
         self.setupTitleLabel()
         self.setupExpenditureTable()
 
-
-
     def processOptionalArguments(self, optional_arguments):
         # store the label fonts
         if 'titleFont' in optional_arguments:
@@ -67,4 +65,3 @@ class ExpenditureWidget(tkinter.Frame):
 
         for blankRow in range(len(expenditureMatrix)+1,self.fieldCount+1):
             self.balanceTable.setRowValues(['-']*self.balanceTable.colSize, blankRow)
-
