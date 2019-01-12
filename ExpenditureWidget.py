@@ -50,18 +50,21 @@ class ExpenditureWidget(tkinter.Frame):
         # adds the expenditure table
         tableCellWidth = [defaultFieldColWidths] * (self.fieldCount + 1)
         # invertAxis is false because the data will be added in rows
-        self.balanceTable = TableWidget(self, 3, self.fieldCount + 1, invertAxis=False, widthTable=tableCellWidth,
+        self.expenditureTable = TableWidget(self, 3, self.fieldCount + 1, invertAxis=False, widthTable=tableCellWidth,
                                         headFont=self.headFont, entryFont=self.entryFont)
         headerValues = ['Amount', 'Name', 'Type']
-        self.balanceTable.setRowValues(headerValues, 0)
-        self.balanceTable.pack()
+        self.expenditureTable.setRowValues(headerValues, 0)
+        self.expenditureTable.pack()
+
+    def setEditable(self, editable):
+        self.expenditureTable.setEditable(True)
 
     def setExpenditures(self, expenditureMatrix:[[]]):
-        print(expenditureMatrix)
+        self.setEditable(True)
         for entryIndex in range(len(expenditureMatrix)):
             labelRowIndex = entryIndex+1
             values = [formatAsCurrency(expenditureMatrix[entryIndex][1]), expenditureMatrix[entryIndex][2], expenditureMatrix[entryIndex][3]]
-            self.balanceTable.setRowValues(values, labelRowIndex)
+            self.expenditureTable.setRowValues(values, labelRowIndex)
 
         for blankRow in range(len(expenditureMatrix)+1,self.fieldCount+1):
-            self.balanceTable.setRowValues(['-']*self.balanceTable.colSize, blankRow)
+            self.expenditureTable.setRowValues(['-']*self.expenditureTable.colSize, blankRow)

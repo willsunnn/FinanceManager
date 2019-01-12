@@ -56,11 +56,12 @@ class DataVisualizer():
 
 
 
-def main():
+def run():
     window = tkinter.Tk()
     dv = DataVisualizer(window)
     window.mainloop()
 
 
 
-main()
+if __name__=="__main__":
+    run()
