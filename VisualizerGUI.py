@@ -4,7 +4,6 @@ from DateSelectionWidget import *
 from BalanceWidget import *
 from ExpenditureWidget import *
 from FinanceManagerModel import *
-from DataModifier import *
 
 defaultbg = 'black'
 defaultfg = 'white'
@@ -21,7 +20,7 @@ class DataVisualizer(tkinter.Frame):
         self.dateSelect.grid(row=0, column=0)
 
         # at the top add a edit button to create a DataModifier widget
-        self.editButton = tkinter.Button(self, text="Edit", command=lambda: self.createEditWidget(), fg=defaultfg, bg=defaultbg)
+        self.editButton = tkinter.Button(self, text="Edit", command=lambda: self.showStatistics(), fg=defaultfg, bg=defaultbg)
         self.editButton.grid(row=0, column=1)
 
         # create an initial balance table
@@ -43,18 +42,18 @@ class DataVisualizer(tkinter.Frame):
         self.currentBalance.setBalances(self.databases.fetchCurrentBalances())
         self.expenditures.setExpenditures(self.databases.fetchExpenditures())
 
-    def createEditWidget(self):
-        newWindow = tkinter.Tk()
-        self.editWidget = DataModifierWidget(newWindow)
-        self.editWidget.setListener(self)
-        self.editWidget.pack()
-
-    def dataUpdated(self):
-        self.databases = self.editWidget.getUpdatedData()
-
     def sendValuesToDatabase(self, tableName, rowIndex, values):
-        primaryUserKey = self.databases.fetchExpenditures()[rowIndex][0]
-        self.databases.setValues(tableName, primaryUserKey, values)
+        try:
+            primaryUserKey = self.databases.fetchExpenditures()[rowIndex][0]
+            self.databases.setValues(tableName, primaryUserKey, values)
+        except IndexError:  #This means the database was empty there
+            if tableName == 'expenditures':
+                self.databases.addExpenditure(values['amount'], values['name'], values['type'])
+        finally:
+            self.dateSelect.buttonSubmit()
+
+    def showStatistics(self):
+        print("expand the window and display the statistics")
 
 def run():
     window = tkinter.Tk()

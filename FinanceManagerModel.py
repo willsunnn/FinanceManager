@@ -21,7 +21,6 @@ class FinanceManagerModel:
         else:                       # access the database files if file already existed
             self.accessTables()
 
-
     # creates new tables
     def constructTables(self):
         self.db = sqlite3.Connection(self.databasePath)
@@ -80,8 +79,6 @@ class FinanceManagerModel:
         self.db.commit()
 
     def setValues(self, tableName, primaryUserKey, values):
-        print(values)
-
         for key in values.keys():
             self.db.execute( '''UPDATE {} 
                                 SET {} = (?) 

@@ -32,10 +32,9 @@ class TableWidget(tkinter.Frame):
                 self.width = defaultCellWidth * self.rowSize
 
         if 'editable' in optional_arguments:
-            self.editable = optional_arguments['editable']
-            self.editButtons = [None for i in range(self.rowSize)]
+            self.setEditable(optional_arguments['editable'])
         else:
-            self.editable = False
+            self.setEditable(False)
 
         # allows for greater control over customization of the label widths
         if 'widthTable' in optional_arguments:

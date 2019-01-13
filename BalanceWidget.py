@@ -60,7 +60,6 @@ class BalanceWidget(tkinter.Frame):
         self.balanceTable.pack()
 
     def setBalances(self, balanceMatrix: [[]]):
-        print(balanceMatrix)
         for entryNum in range(len(balanceMatrix)):
             displayRow = entryNum+1
             values = [balanceMatrix[entryNum][1], TableWidget.formatAsCurrency(balanceMatrix[entryNum][2])]
