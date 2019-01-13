@@ -10,7 +10,6 @@ class FinanceManagerModel:
         self.databasePath = databaseFileLocations+self.fileName+".db"
         self.db = None
 
-
         path = Path(self.databasePath)
         if not path.is_file():      # if the path is a new file
             # create the database file
@@ -29,12 +28,12 @@ class FinanceManagerModel:
         self.db.execute("CREATE TABLE IF NOT EXISTS initialBalances("
                         "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                         "source VARCHAR(255), "
-                        "amount INTEGER"
+                        "amount DOUBLE(10,2)"
                         ");")
         self.db.execute("CREATE TABLE IF NOT EXISTS currentBalances("
                         "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                         "source VARCHAR(255), "
-                        "amount INTEGER"
+                        "amount DOUBLE(10,2)"
                         ");")
         self.db.execute("CREATE TABLE IF NOT EXISTS expenditures("
                         "id INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -78,6 +77,16 @@ class FinanceManagerModel:
     # clears the table with the name tableName
     def clearTable(self, tableName: str):
         self.db.execute("DELETE FROM {};".format(tableName))
+        self.db.commit()
+
+    def setValues(self, tableName, primaryUserKey, values):
+        print(values)
+
+        for key in values.keys():
+            self.db.execute( '''UPDATE {} 
+                                SET {} = (?) 
+                                WHERE 
+                                    id = (?)'''.format(tableName, key), [values[key], primaryUserKey])
         self.db.commit()
 
     # clears all the databases

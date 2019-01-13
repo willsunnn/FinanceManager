@@ -11,8 +11,9 @@ defaultEntryFont = ("Helvetica", 11)
 defaultTitleText = 'Expenditures'
 
 class ExpenditureWidget(tkinter.Frame):
-    def __init__(self, parent, **optional_arguments):
+    def __init__(self, parent, visualizerWidget, **optional_arguments):
         tkinter.Frame.__init__(self, parent)
+        self.parentWidget = visualizerWidget
         self.fieldCount = defaultFieldCount
 
         self.processOptionalArguments(optional_arguments)
@@ -63,8 +64,12 @@ class ExpenditureWidget(tkinter.Frame):
         self.setEditable(True)
         for entryIndex in range(len(expenditureMatrix)):
             labelRowIndex = entryIndex+1
-            values = [formatAsCurrency(expenditureMatrix[entryIndex][1]), expenditureMatrix[entryIndex][2], expenditureMatrix[entryIndex][3]]
+            values = [TableWidget.formatAsCurrency(expenditureMatrix[entryIndex][1]), expenditureMatrix[entryIndex][2], expenditureMatrix[entryIndex][3]]
             self.expenditureTable.setRowValues(values, labelRowIndex)
 
         for blankRow in range(len(expenditureMatrix)+1,self.fieldCount+1):
             self.expenditureTable.setRowValues(['-']*self.expenditureTable.colSize, blankRow)
+
+    def sendValuesToDatabase(self, rowIndex, values):
+        valuedict = {'amount':TableWidget.unformatAsCurrency(values[0]), 'name':values[1], 'type':values[2]}
+        self.parentWidget.sendValuesToDatabase("expenditures", rowIndex, valuedict)

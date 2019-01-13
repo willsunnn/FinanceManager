@@ -8,6 +8,7 @@ directionToCompass = {'center':'center', 'left':'w', "right":'e'}
 class TableWidget(tkinter.Frame):
     def __init__(self, parent, colSize, defaultRowSize, **optional_arguments):
         tkinter.Frame.__init__(self, parent)
+        self.parentWidget = parent
         self.colSize = colSize              # col size should remain constant
         self.rowSize = defaultRowSize       # rows can be inserted, hence the use of a linkedlist (unless axis is inverted)
         self.table = linkedList([[None for i in range(self.colSize)] for j in range(self.rowSize)])
@@ -108,7 +109,6 @@ class TableWidget(tkinter.Frame):
         # for every cell
         for rowIndex in range(self.rowSize):
             if self.editable and rowIndex>0:
-                print(rowIndex)
                 button = tkinter.Button(self, text="Edit")
                 button.config(command=lambda b=button, r=rowIndex: self.editPressed(b,r))
                 self.editButtons[rowIndex] = button
@@ -149,7 +149,6 @@ class TableWidget(tkinter.Frame):
             self.editButtons = [None for i in range(self.rowSize)]
             for rowIndex in range(self.rowSize):
                 if self.editable and rowIndex > 0:
-                    print(rowIndex)
                     button = tkinter.Button(self, text="Edit")
                     button.config(command=lambda b=button, r=rowIndex: self.editPressed(b, r))
                     self.editButtons[rowIndex] = button
@@ -180,22 +179,25 @@ class TableWidget(tkinter.Frame):
             else:
                 field.grid(row=rowIndex, column=colIndex)
 
-
     def donePressed(self, button: tkinter.Button, rowIndex: int):
         button.config(text="Edit", command=lambda b=button, r=rowIndex: self.editPressed(b, r))
+        values = []
         for colIndex in range(self.colSize):
             # update the text
             label = self.displayMatrix[rowIndex][colIndex]
             text = self.entryFields[colIndex].get()
             self.entryFields[colIndex].grid_remove()
             label.config(text=text)
+            values.append(text)
             # position the label
             if self.invertAxis:
                 label.grid(row=colIndex, column=rowIndex)
             else:
                 label.grid(row=rowIndex, column=colIndex)
+        self.sendValuesToDatabase(rowIndex-1, values)
 
-        print("done pressed")
+    def sendValuesToDatabase(self, rowIndex, values):
+        self.parentWidget.sendValuesToDatabase(rowIndex, values)
 
 
     def updateLabelText(self, rowIndex, colIndex):
@@ -203,6 +205,17 @@ class TableWidget(tkinter.Frame):
         label = self.displayMatrix[rowIndex][colIndex]
         label.config(text=matrix[rowIndex][colIndex])
 
+    def formatAsCurrency(num: float) -> str:
+        if num >= 0:
+            return '${:,.2f}'.format(num)
+        else:
+            return '-${:,.2f}'.format(-num)
+
+    def unformatAsCurrency(num: str) -> float:
+        if num[0] == "-":
+            return -float(num[2:])
+        else:
+            return float(num[1:])
 
 class linkedList():
     def __init__(self, values: []):
@@ -245,12 +258,6 @@ class linkedList():
             node = node.nextNode
         list.append(node.value)
         return list
-
-def formatAsCurrency(num: float) -> str:
-    if num>= 0:
-        return '${:,.2f}'.format(num)
-    else:
-        return '-${:,.2f}'.format(-num)
 
 def setFieldText(entry, text:str):
     entry.delete(0, tkinter.END)

@@ -63,7 +63,7 @@ class BalanceWidget(tkinter.Frame):
         print(balanceMatrix)
         for entryNum in range(len(balanceMatrix)):
             displayRow = entryNum+1
-            values = [balanceMatrix[entryNum][1], formatAsCurrency(balanceMatrix[entryNum][2])]
+            values = [balanceMatrix[entryNum][1], TableWidget.formatAsCurrency(balanceMatrix[entryNum][2])]
             self.balanceTable.setRowValues(values, displayRow)
 
         for blankRow in range(len(balanceMatrix)+1,self.fieldCount+1):

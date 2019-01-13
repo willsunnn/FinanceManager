@@ -28,7 +28,7 @@ class DataVisualizer():
         self.initialBalance.grid(row=1, column=0)
 
         # create an expenditure table
-        self.expenditures = ExpenditureWidget(tk)
+        self.expenditures = ExpenditureWidget(tk, self)
         self.expenditures.grid(row=2, column=0)
 
         # create a final balances table
@@ -50,6 +50,10 @@ class DataVisualizer():
 
     def dataUpdated(self):
         self.databases = self.editWidget.getUpdatedData()
+
+    def sendValuesToDatabase(self, tableName, rowIndex, values):
+        primaryUserKey = self.databases.fetchExpenditures()[rowIndex][0]
+        self.databases.setValues(tableName, primaryUserKey, values)
 
 
 
