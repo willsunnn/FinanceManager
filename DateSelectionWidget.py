@@ -1,6 +1,8 @@
 import tkinter
 import datetime
 import calendar
+import FinanceManagerModel
+import pathlib
 
 monthDict = {"January":1, "February":2, "March":3,
                         "April":4, "May":5, "June":6,
@@ -51,7 +53,10 @@ class DateSelectionWidget(tkinter.Frame):
 
     def buttonSubmit(self):
         if(self.checkDone()):
-            self.listener.loadTableData(self.getDate())
+            date = self.getDate()
+            fileName = FinanceManagerModel.FinanceManagerModel.formatDate(date['month'], date['year'])
+            databasePath = FinanceManagerModel.databaseFileLocations + fileName + ".db"
+            self.listener.loadTableData(pathlib.Path(databasePath))
         else:
             self.setYearEntryText("Enter a year")
 

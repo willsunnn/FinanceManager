@@ -4,26 +4,21 @@ import sqlite3
 from pathlib import Path
 
 class FinanceManagerModel:
-    def __init__(self, month: int, year: int):
-        #save data for reference
-        self.fileName = FinanceManagerModel.formatDate(month,year)
-        self.databasePath = databaseFileLocations+self.fileName+".db"
+    def __init__(self, path: Path):
         self.db = None
-
-        path = Path(self.databasePath)
-        if not path.is_file():      # if the path is a new file
+        self.path = path
+        if not self.path.is_file():  # if the path is a new file
             # create the database file
-            Path(self.databasePath).touch()
+            self.path.touch()
 
-            #initialize the tables in the file
+            # initialize the tables in the file
             self.constructTables()
-
-        else:                       # access the database files if file already existed
+        else:  # access the database files if file already existed
             self.accessTables()
 
     # creates new tables
     def constructTables(self):
-        self.db = sqlite3.Connection(self.databasePath)
+        self.db = sqlite3.Connection(self.path)
         self.db.execute("CREATE TABLE IF NOT EXISTS initialBalances("
                         "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                         "source VARCHAR(255), "
@@ -44,7 +39,7 @@ class FinanceManagerModel:
 
     # reconnects the sql tables from the document to the python object
     def accessTables(self):
-        self.db = sqlite3.Connection(self.databasePath)
+        self.db = sqlite3.Connection(self.path)
 
     # adds an expenditure to the expenditures table
     def addExpenditure(self, amount, name, type):

@@ -8,11 +8,9 @@ from FinanceManagerModel import *
 defaultbg = 'black'
 defaultfg = 'white'
 
-class DataVisualizer(tkinter.Frame):
+class TableVisualizer(tkinter.Frame):
     def __init__(self, parent):
         tkinter.Frame.__init__(self, parent)
-        self.tk = parent
-        self.tk.title("Finance Manager")
 
         # at the top create a date selection menu
         self.dateSelect = DateSelectionWidget(self, fg=defaultfg, bg=defaultbg)
@@ -35,8 +33,8 @@ class DataVisualizer(tkinter.Frame):
         self.currentBalance = BalanceWidget(self, name='Current Balance')
         self.currentBalance.grid(row=3, column=0)
 
-    def loadTableData(self, date: {str:int}):
-        self.databases = FinanceManagerModel(date['month'], date['year'])
+    def loadTableData(self, path: [Path]):
+        self.databases = FinanceManagerModel(path)
 
         self.initialBalance.setBalances(self.databases.fetchInitialBalances())
         self.currentBalance.setBalances(self.databases.fetchCurrentBalances())
@@ -57,7 +55,7 @@ class DataVisualizer(tkinter.Frame):
 
 def run():
     window = tkinter.Tk()
-    dv = DataVisualizer(window)
+    dv = TableVisualizer(window)
     dv.pack()
     window.mainloop()
 
