@@ -11,9 +11,9 @@ defaultEntryFont = ("Helvetica", 11)
 defaultTitleText = 'Expenditures'
 
 class ExpenditureWidget(tkinter.Frame):
-    def __init__(self, parent, visualizerWidget, **optional_arguments):
+    def __init__(self, parent, **optional_arguments):
         tkinter.Frame.__init__(self, parent)
-        self.parentWidget = visualizerWidget
+        self.parentWidget = parent
         self.fieldCount = defaultFieldCount
 
         self.processOptionalArguments(optional_arguments)
