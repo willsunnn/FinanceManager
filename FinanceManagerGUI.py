@@ -1,6 +1,7 @@
 import tkinter
-from TableVisualizer import *
-from FileDisplay import *
+import pathlib
+from TableVisualizer import TableVisualizer
+from FileDisplay import FileDisplay
 
 
 class FinanceManagerGUI(tkinter.Frame):

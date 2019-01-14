@@ -1,9 +1,10 @@
 import tkinter
+import pathlib
 from tkinter.ttk import Separator
-from DateSelectionWidget import *
-from BalanceWidget import *
-from ExpenditureWidget import *
-from FinanceManagerModel import *
+from DateSelectionWidget import DateSelectionWidget
+from BalanceWidget import BalanceWidget
+from ExpenditureWidget import ExpenditureWidget
+from FinanceManagerModel import FinanceManagerModel
 
 defaultbg = 'black'
 defaultfg = 'white'
@@ -13,13 +14,13 @@ class TableVisualizer(tkinter.Frame):
         tkinter.Frame.__init__(self, parent)
 
         # at the top create a date selection menu
-        self.dateSelect = DateSelectionWidget(self, fg=defaultfg, bg=defaultbg)
+        '''self.dateSelect = DateSelectionWidget(self, fg=defaultfg, bg=defaultbg)
         self.dateSelect.addListener(self)
         self.dateSelect.grid(row=0, column=0)
 
         # at the top add a edit button to create a DataModifier widget
         self.editButton = tkinter.Button(self, text="Edit", command=lambda: self.showStatistics(), fg=defaultfg, bg=defaultbg)
-        self.editButton.grid(row=0, column=1)
+        self.editButton.grid(row=0, column=1)'''
 
         # create an initial balance table
         self.initialBalance = BalanceWidget(self, name='Initial Balance')
@@ -33,7 +34,7 @@ class TableVisualizer(tkinter.Frame):
         self.currentBalance = BalanceWidget(self, name='Current Balance')
         self.currentBalance.grid(row=3, column=0)
 
-    def loadTableData(self, path: [Path]):
+    def loadTableData(self, path: [pathlib.Path]):
         self.databases = FinanceManagerModel(path)
 
         self.initialBalance.setBalances(self.databases.fetchInitialBalances())

@@ -58,7 +58,7 @@ class ExpenditureWidget(tkinter.Frame):
         self.expenditureTable.pack()
 
     def setEditable(self, editable):
-        self.expenditureTable.setEditable(True)
+        self.expenditureTable.setEditable(editable)
 
     def setExpenditures(self, expenditureMatrix:[[]]):
         self.setEditable(True)

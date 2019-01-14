@@ -1,5 +1,6 @@
 import pathlib
 import tkinter
+from DateSelectionWidget import DateSelectionWidget
 
 rootPath = "finances/"
 monthDict = {"January":1, "February":2, "March":3,
@@ -12,10 +13,30 @@ class FileDisplay(tkinter.Frame):
         tkinter.Frame.__init__(self, parent)
         self.parentWidget = parent
 
-        paths = FileDisplay.sortPaths(FileDisplay.getPaths(rootPath))
+        self.setupDateSelector()
+        self.loadFileList()
+
+    def setupDateSelector(self):
+        self.dateSelector = DateSelectionWidget(self)
+        self.dateSelector.addListener(self)
+        self.dateSelector.pack()
+
+    def loadFileList(self):
+        try:
+            for button in self.buttons:
+                button.pack_forget()
+            self.buttons = []
+        except AttributeError: #self.buttons has not been initialzied
+            self.buttons = []
+        paths = sorted(FileDisplay.getPaths(rootPath))
         for path in paths:
-            button = tkinter.Button(self, text=path, command=lambda p=path: self.loadParentTable(p))
+            button = tkinter.Button(self, text=path.name, command=lambda p=path: self.loadTableData(p))
             button.pack()
+            self.buttons.append(button)
+
+    def loadTableData(self, path: [pathlib.Path]):
+        self.parentWidget.loadTableData(path)
+        self.loadFileList()
 
     def getPaths(root: str) -> [pathlib.Path]:
         paths = []
@@ -24,15 +45,9 @@ class FileDisplay(tkinter.Frame):
             paths.append(path)
         return paths
 
-    def sortPaths(paths: [pathlib.Path]) -> [pathlib.Path]:
-        return sorted(paths)
-
-    def loadParentTable(self, path):
-        self.parentWidget.loadTableData(path)
 
 
 if __name__ == "__main__":
-    test()
     tk = tkinter.Tk()
     fd = FileDisplay(tk)
     fd.mainloop()
