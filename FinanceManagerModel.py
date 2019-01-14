@@ -4,20 +4,22 @@ import sqlite3
 from pathlib import Path
 
 class FinanceManagerModel:
+    # is a class used to interface between the SQL databases and the rest of the program
+
     def __init__(self, path: Path):
+        # constructs or opens the database associated with the given file path
         self.db = None
         self.path = path
         if not self.path.is_file():  # if the path is a new file
             # create the database file
             self.path.touch()
-
             # initialize the tables in the file
             self.constructTables()
         else:  # access the database files if file already existed
             self.accessTables()
 
-    # creates new tables
     def constructTables(self):
+        # creates new tables
         self.db = sqlite3.Connection(self.path)
         self.db.execute("CREATE TABLE IF NOT EXISTS initialBalances("
                         "id INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -37,28 +39,59 @@ class FinanceManagerModel:
                         ");")
         self.db.commit()
 
-    # reconnects the sql tables from the document to the python object
     def accessTables(self):
+        # reconnects the sql tables from the document to the python object if the database already exists
         self.db = sqlite3.Connection(self.path)
 
-    # adds an expenditure to the expenditures table
+    def setCurrentBalances(self, balanceDict):
+        # takes a dictionary with key balanceName, and value amount
+        # sets the current table of balances in sql file to reflect balanceDict
+        self.setBalances(balanceDict, False)
+
+    def setInitialBalances(self, balanceDict):
+        # takes a dictionary with key balanceName, and value amount
+        # sets the initial table of balances in sql file to reflect balanceDict
+        self.setBalances(balanceDict, True)
+
     def addExpenditure(self, amount, name, type):
+        # adds an expenditure to the expenditures table
         self.db.execute("INSERT INTO expenditures (amount, name, type) VALUES((?), (?), (?) );", [amount, name, type])
         self.db.commit()
 
-    # takes a dictionary with key balanceName, and value amount
-    # sets the current table of balances in sql file to reflect balanceDict
-    def setCurrentBalances(self, balanceDict):
-        self.setBalances(balanceDict, False)
+    def updateExpenditureValues(self, primaryUserKey, values):
+        # updates the values of the primaryUserKey in expenditureTable
+        self.updateTableValues('expenditures', primaryUserKey, values)
 
-    # takes a dictionary with key balanceName, and value amount
-    # sets the initial table of balances in sql file to reflect balanceDict
-    def setInitialBalances(self, balanceDict):
-        self.setBalances(balanceDict, True)
+    def getExpenditureByType(self):
+        # returns a matrix containing the expenditure by type
+        return self.db.execute("SELECT type, SUM(amount) FROM expenditures GROUP BY type;").fetchall()
 
-    # takes a dictionary with key balanceName, and value amount
-    # sets the table of balances in sql file to reflect balanceDict
+    def fetchExpenditures(self):
+        # returns the matrix containing all the data points of the database in expenditures
+        return self.db.execute("SELECT * FROM expenditures").fetchall()
+
+    def fetchInitialBalances(self):
+        # returns the matrix containing all the data points of the database in initialBalances
+        return self.db.execute("SELECT * FROM initialBalances").fetchall()
+
+    def fetchCurrentBalances(self):
+        # returns the matrix containing all the data points of the database in currentBalances
+        return self.db.execute("SELECT * FROM currentBalances").fetchall()
+
+    ### HELPER METHODS ###
+
+    def updateTableValues(self, tableName, primaryUserKey, values):
+        # updates the values of the data with the primaryUserKey with the given values
+        for key in values.keys():
+            self.db.execute( '''UPDATE {} 
+                                SET {} = (?) 
+                                WHERE 
+                                    id = (?)'''.format(tableName, key), [values[key], primaryUserKey])
+        self.db.commit()
+
     def setBalances(self, balanceDict: {str:int}, isInitial):
+        # takes a dictionary with key balanceName, and value amount
+        # sets the table of balances in sql file to reflect balanceDict
         if isInitial:                                       #choose the table to edit
             tableName = "initialBalances"
         else:
@@ -68,44 +101,24 @@ class FinanceManagerModel:
             self.db.execute("INSERT INTO {} (source, amount) VALUES((?), (?));".format(tableName), [balanceName, value])
             self.db.commit()
 
-    # clears the table with the name tableName
-    def clearTable(self, tableName: str):
-        self.db.execute("DELETE FROM {};".format(tableName))
-        self.db.commit()
-
-    def setValues(self, tableName, primaryUserKey, values):
-        for key in values.keys():
-            self.db.execute( '''UPDATE {} 
-                                SET {} = (?) 
-                                WHERE 
-                                    id = (?)'''.format(tableName, key), [values[key], primaryUserKey])
-        self.db.commit()
-
-    # clears all the databases
-    def clearDatabase(self):
-        self.clearTable("expenditures")
-        self.clearTable("initialBalances")
-        self.clearTable("currentBalances")
-
-    # returns the date formatted as YYYY-MM so it's chronological when sorted alphabetically
     def formatDate(month: int, year: int):
+        # returns the date formatted as YYYY-MM so it's chronological when sorted alphabetically
         if (month < 10):  # if month is single digit
             month = "0{}".format(month)
         return "{}-{}".format(year, month)
 
-    # fetches the databases in the form of a matrix
-    def fetchExpenditures(self):
-        return self.db.execute("SELECT * FROM expenditures").fetchall()
+    ### METHODS THAT WERE USED DURING TESTING ###
 
-    def fetchInitialBalances(self):
-        return self.db.execute("SELECT * FROM initialBalances").fetchall()
+    def clearDatabase(self):
+        # clears all the databases
+        self.clearTable("expenditures")
+        self.clearTable("initialBalances")
+        self.clearTable("currentBalances")
 
-    def fetchCurrentBalances(self):
-        return self.db.execute("SELECT * FROM currentBalances").fetchall()
-
-    # returns a matrix containing the expenditure by type
-    def getExpenditureByType(self):
-        return self.db.execute("SELECT type, SUM(amount) FROM expenditures GROUP BY type;").fetchall()
+    def clearTable(self, tableName: str):
+        # clears the table with the name tableName
+        self.db.execute("DELETE FROM {};".format(tableName))
+        self.db.commit()
 
     # prints the expenditure database for troubleshooting
     def printDatabase(self):

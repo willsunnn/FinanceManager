@@ -11,7 +11,10 @@ defaultEntryFont = ("Helvetica", 11)
 defaultTitleText = 'Expenditures'
 
 class ExpenditureWidget(tkinter.Frame):
+    # is a widget that displays the expenditures in the database
+
     def __init__(self, parent, **optional_arguments):
+        # initializes the frame and subframes
         tkinter.Frame.__init__(self, parent)
         self.parentWidget = parent
         self.fieldCount = defaultFieldCount
@@ -21,7 +24,7 @@ class ExpenditureWidget(tkinter.Frame):
         self.setupExpenditureTable()
 
     def processOptionalArguments(self, optional_arguments):
-        # store the label fonts
+        # processes the optional arguments passed to the constructor
         if 'titleFont' in optional_arguments:
             self.titleFont = optional_arguments['titleFont']
         else:
@@ -34,8 +37,6 @@ class ExpenditureWidget(tkinter.Frame):
             self.entryFont = optional_arguments['entryFont']
         else:
             self.entryFont = defaultEntryFont
-
-        # store the name
         if 'name' in optional_arguments:
             self.titleText = optional_arguments['name']
         else:
@@ -58,9 +59,11 @@ class ExpenditureWidget(tkinter.Frame):
         self.expenditureTable.pack()
 
     def setEditable(self, editable):
+        # passes the editable variable to the table widget to be appropriately handled
         self.expenditureTable.setEditable(editable)
 
     def setExpenditures(self, expenditureMatrix:[[]]):
+        # passes the label values to the table to be inserted into the labels
         self.setEditable(True)
         for entryIndex in range(len(expenditureMatrix)):
             labelRowIndex = entryIndex+1
@@ -71,5 +74,6 @@ class ExpenditureWidget(tkinter.Frame):
             self.expenditureTable.setRowValues(['-']*self.expenditureTable.colSize, blankRow)
 
     def sendValuesToDatabase(self, rowIndex, values):
+        # passes the row values to the parent widget to the DatabaseModel to be processed and stored in the database
         valuedict = {'amount':TableWidget.unformatAsCurrency(values[0]), 'name':values[1], 'type':values[2]}
         self.parentWidget.sendValuesToDatabase("expenditures", rowIndex, valuedict)

@@ -16,39 +16,53 @@ defaultbg = 'black'
 defaultYearEntryWidth = 5
 
 class DateSelectionWidget(tkinter.Frame):
+    # Is a widget used to select a date for file selection
+
     def __init__(self, parent, **optional_arguments):
+        #initializes the frame and subframes
         tkinter.Frame.__init__(self, parent)
+        self.processOptionalArguments(optional_arguments)
+        self.setupMonthSelection()
+        self.setupYearSelection()
+        self.setupRetrieveButton()
 
-        self.fgcol = defaultfg
-        self.bgcol = defaultbg
-
+    def processOptionalArguments(self, optional_arguments):
         if 'fg' in optional_arguments:
             self.fgcol = optional_arguments['fg']
+        else:
+            self.fgcol = defaultfg
+
         if 'bg' in optional_arguments:
             self.bgcol = optional_arguments['bg']
+        else:
+            self.bgcol = defaultbg
 
+    def setupMonthSelection(self):
         # create the month selection dropdown menu
         self.monthVar = tkinter.StringVar(self)
-        self.monthVar.set( calendar.month_name[present.month] )                                 #gets current month (as int), and then sets the name of the month
-        self.monthSelect = tkinter.OptionMenu(self, self.monthVar, *list(monthDict.keys()))     #sets the month and the options
+        self.monthVar.set(
+            calendar.month_name[present.month])  # gets current month (as int), and then sets the name of the month
+        self.monthSelect = tkinter.OptionMenu(self, self.monthVar,
+                                              *list(monthDict.keys()))  # sets the month and the options
         self.monthSelect.config(foreground=self.fgcol, background=self.bgcol)
+        self.monthSelect.grid(row=0, column=0)
 
+    def setupYearSelection(self):
         # create the year selection
         self.yearSelect = tkinter.Entry(self)
         self.setYearEntryText(present.year)
         self.yearSelect.config(width=defaultYearEntryWidth)
         self.yearSelect.config(fg=self.fgcol, bg=self.bgcol)
+        self.yearSelect.grid(row=0, column=1)
 
+    def setupRetrieveButton(self):
         # create the button to check and retrieve the dates
         self.retrieveButton = tkinter.Button(self, text="retrieve", command=lambda: self.buttonSubmit(),
                                              fg=self.fgcol, bg=self.bgcol)
-
-        # organize monthSelect and yearSelect within the DateSelectionMenu Frame
-        self.monthSelect.pack(side="left")
-        self.yearSelect.pack(side="left")
-        self.retrieveButton.pack(side="left")
+        self.retrieveButton.grid(row=0, column=2)
 
     def addListener(self, superWidget):
+        # adds a listener that will execute the method loadTableData(pathlib.Path) when button is pressed
         self.listener = superWidget
 
     def buttonSubmit(self):

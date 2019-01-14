@@ -12,7 +12,10 @@ defaultEntryFont = ("Helvetica", 11)
 defaultTitleText = 'Balance'
 
 class BalanceWidget(tkinter.Frame):
+    # is a widget that tells the user the balance and the sum
+
     def __init__(self, parent, **optional_arguments):
+        #initialized the frame and subframes
         tkinter.Frame.__init__(self, parent)
         self.fieldCount = defaultFieldCount
 
@@ -21,6 +24,7 @@ class BalanceWidget(tkinter.Frame):
         self.setupBalanceTable()
 
     def processOptionalArguments(self, optional_arguments):
+        #processes optional arguments passed to the Balance Widget
         # store the label fonts
         if 'titleFont' in optional_arguments:
             self.titleFont = optional_arguments['titleFont']
@@ -47,8 +51,8 @@ class BalanceWidget(tkinter.Frame):
         self.headLabel.config(text=self.titleText, font=self.titleFont)
         self.headLabel.pack()
 
-    # adds the balance table
     def setupBalanceTable(self):
+        # initializes the table that actually holds the balances
         tableCellWidth = [[defaultFirstColWidth, defaultFirstColWidth]] + [[defaultFieldColWidth, defaultFieldColWidth]
                                                                            for x in range(self.fieldCount)]
         # invertAxis is True because the data will be added in cols
@@ -60,6 +64,7 @@ class BalanceWidget(tkinter.Frame):
         self.balanceTable.pack()
 
     def setBalances(self, balanceMatrix: [[]]):
+        # sets the values in the balances table given the balance matrix
         for entryNum in range(len(balanceMatrix)):
             displayRow = entryNum+1
             values = [balanceMatrix[entryNum][1], TableWidget.formatAsCurrency(balanceMatrix[entryNum][2])]

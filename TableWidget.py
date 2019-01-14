@@ -6,7 +6,10 @@ defaultEntryJustify = 'left'
 directionToCompass = {'center':'center', 'left':'w', "right":'e'}
 
 class TableWidget(tkinter.Frame):
+    # is a widget that controls a matrix of labels and manages their changes
+
     def __init__(self, parent, colSize, defaultRowSize, **optional_arguments):
+        # initializes the frame and its subframes
         tkinter.Frame.__init__(self, parent)
         self.parentWidget = parent
         self.colSize = colSize              # col size should remain constant
@@ -17,6 +20,8 @@ class TableWidget(tkinter.Frame):
         self.addLabels()
 
     def processOptionalArguments(self, optional_arguments):
+        # processes the optional arguments passed to the constructor
+
         # allow fields to be added as new cols as opposed to new rows
         if 'invertAxis' in optional_arguments:
             self.invertAxis = optional_arguments['invertAxis']
@@ -64,17 +69,15 @@ class TableWidget(tkinter.Frame):
         else:
             self.entryJustify = defaultEntryJustify
 
-    def printTable(self):
-        for row in self.table.toList():
-            print(row, end='\n')
-
     def calculateCellWidth(self):
+        # sets the default cell width if no parameters regarding width were given
         if not self.invertAxis :
             self.cellWidth = int(self.width / self.colSize)
         else:
             self.cellWidth = int(self.width / self.rowSize)
 
     def setValue(self, value, rowIndex, colIndex):
+        # sets the text in the label at the given position
         if rowIndex>=self.rowSize or colIndex>=self.colSize:
             self.increaseMatrix(rowIndex, colIndex)
         row = self.table.getNodeAt(rowIndex).value
@@ -82,6 +85,7 @@ class TableWidget(tkinter.Frame):
         self.updateLabelText(rowIndex, colIndex)
 
     def setRowValues(self, values:[], rowIndex):
+        # sets the texts in the labels at the given row
         for valueIndex in range(len(values)):
             self.setValue(values[valueIndex], rowIndex, valueIndex)
 
@@ -101,6 +105,7 @@ class TableWidget(tkinter.Frame):
             self.addLabels()
 
     def addLabels(self):
+        # sets up the labels and inserts the database values
         # update length in case the table increased in rows
         self.rowSize = self.table.getLength()
         self.displayMatrix = [[tkinter.Label(self) for i in range(self.colSize)] for j in range(self.rowSize)]
@@ -143,6 +148,7 @@ class TableWidget(tkinter.Frame):
                     label.grid(row=rowIndex, column=colIndex)
 
     def setEditable(self, editable):
+        # sets up the editable buttons
         self.editable = editable
         if editable:
             self.editButtons = [None for i in range(self.rowSize)]
@@ -154,6 +160,7 @@ class TableWidget(tkinter.Frame):
                     self.editButtons[rowIndex].grid(row=rowIndex, column=self.colSize)
 
     def editPressed(self, button: tkinter.Button, rowIndex: int):
+        # changes the edit button to back and changes labels to fields
         button.config(text="Done", command=lambda b=button, r=rowIndex: self.donePressed(b, r))
         self.entryFields = [tkinter.Entry(self) for i in range(self.colSize)]
         dataMatrix = self.table.toList()
@@ -161,7 +168,7 @@ class TableWidget(tkinter.Frame):
             # create a field
             field = self.entryFields[colIndex]
             self.displayMatrix[rowIndex][colIndex].grid_remove()
-            setFieldText(field, dataMatrix[rowIndex][colIndex])
+            TableWidget.setFieldText(field, dataMatrix[rowIndex][colIndex])
 
             # set the field width
             try:
@@ -179,6 +186,7 @@ class TableWidget(tkinter.Frame):
                 field.grid(row=rowIndex, column=colIndex)
 
     def donePressed(self, button: tkinter.Button, rowIndex: int):
+        # changes the done button back to edit, changes fields to labels, and sends data to the database
         button.config(text="Edit", command=lambda b=button, r=rowIndex: self.editPressed(b, r))
         values = []
         for colIndex in range(self.colSize):
@@ -196,28 +204,53 @@ class TableWidget(tkinter.Frame):
         self.sendValuesToDatabase(rowIndex-1, values)
 
     def sendValuesToDatabase(self, rowIndex, values):
+        # sends the new data from the row to the database to be stored
         self.parentWidget.sendValuesToDatabase(rowIndex, values)
 
-
     def updateLabelText(self, rowIndex, colIndex):
+        # updates the text of a label at the given position
         matrix = self.table.toList()
         label = self.displayMatrix[rowIndex][colIndex]
         label.config(text=matrix[rowIndex][colIndex])
 
+    ### HELPER METHODS ###
+
     def formatAsCurrency(num: float) -> str:
+        # converts a number to a currency format
         if num >= 0:
             return '${:,.2f}'.format(num)
         else:
             return '-${:,.2f}'.format(-num)
 
     def unformatAsCurrency(num: str) -> float:
-        if num[0] == "-":
-            return -float(num[2:])
-        else:
-            return float(num[1:])
+        # converts the currency format to a number
+        try:
+            if num[0] == "-":
+                negative = True
+                num = num[1:]
+            else:
+                negative = False
+
+            if '$' in num:
+                num = num[num.index('$')+1:]
+
+            if negative:
+                return -float(num)
+            else:
+                return float(num)
+        except IndexError: #the string was probably empty
+            return 0
+
+    def setFieldText(entry, text: str):
+        # sets a field's text to text
+        entry.delete(0, tkinter.END)
+        entry.insert(0, text)
 
 class linkedList():
+    # this class is used in the Table due to the table's nature of insertions of rows in the middle or swapping of rows
+
     def __init__(self, values: []):
+        # initializes a linkedlist with given values
         self.value = values[0]
         nextValues = values[1:]
         if len(nextValues) == 0:
@@ -226,30 +259,36 @@ class linkedList():
             self.nextNode = linkedList(nextValues)
 
     def setNext(self, next):
+        # sets the nextNode to next
         self.nextNode = next
 
     def append(self, newNode):
+        # adds the newNode to the end of the linkedList
         if self.nextNode == None:
             self.setNext(newNode)
         else:
             self.nextNode.append(newNode)
 
     def getLength(self) -> int:
+        # returns the number of items in the linkedList
         if self.nextNode == None:
             return 1
         else:
             return 1+self.nextNode.getLength()
 
     def setValue(self, value, index):
+        # sets the value of the node at the given index to value
         self.getNodeAt(index).value = value
 
     def getNodeAt(self, index):
+        # returns the Node at the given index
         if index == 0:
             return self
         else:
             return self.nextNode.getNodeAt(index-1)
 
     def toList(self) -> []:
+        # converts the linkedList to a list to be used as an iterable
         list = []
         node = self
         while node.nextNode != None:
@@ -258,6 +297,3 @@ class linkedList():
         list.append(node.value)
         return list
 
-def setFieldText(entry, text:str):
-    entry.delete(0, tkinter.END)
-    entry.insert(0, text)

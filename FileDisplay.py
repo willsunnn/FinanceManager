@@ -3,13 +3,12 @@ import tkinter
 from DateSelectionWidget import DateSelectionWidget
 
 rootPath = "finances/"
-monthDict = {"January":1, "February":2, "March":3,
-                        "April":4, "May":5, "June":6,
-                        "July":7, "August":8, "September":9,
-                        "October":10, "November":11, "December":12}
 
 class FileDisplay(tkinter.Frame):
+    # is a widget that allows the user to choose which database to access
+
     def __init__(self, parent):
+        # initializes the frame and its subframes
         tkinter.Frame.__init__(self, parent)
         self.parentWidget = parent
 
@@ -17,11 +16,13 @@ class FileDisplay(tkinter.Frame):
         self.loadFileList()
 
     def setupDateSelector(self):
+        # sets up the dateSelectionWidget used to create new files or select a file by date
         self.dateSelector = DateSelectionWidget(self)
         self.dateSelector.addListener(self)
         self.dateSelector.pack()
 
     def loadFileList(self):
+        # loads and manages the buttons in the widget that corresponds to a path
         try:
             for button in self.buttons:
                 button.pack_forget()
@@ -35,19 +36,15 @@ class FileDisplay(tkinter.Frame):
             self.buttons.append(button)
 
     def loadTableData(self, path: [pathlib.Path]):
+        # tells the parent to retrieve the data from the specified path and to appropriately process it
+        # then reloads the file list in case new files were created upon button press
         self.parentWidget.loadTableData(path)
         self.loadFileList()
 
     def getPaths(root: str) -> [pathlib.Path]:
+        # retrieves all the files in the database's directory
         paths = []
         rootDirectory = pathlib.Path(root)
         for path in rootDirectory.iterdir():
             paths.append(path)
         return paths
-
-
-
-if __name__ == "__main__":
-    tk = tkinter.Tk()
-    fd = FileDisplay(tk)
-    fd.mainloop()
