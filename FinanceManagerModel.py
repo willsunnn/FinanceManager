@@ -43,22 +43,22 @@ class FinanceManagerModel:
         # reconnects the sql tables from the document to the python object if the database already exists
         self.db = sqlite3.Connection(self.path)
 
-    def setCurrentBalances(self, balanceDict):
+    def setCurrentBalances(self, balanceDict: {str:float}):
         # takes a dictionary with key balanceName, and value amount
         # sets the current table of balances in sql file to reflect balanceDict
         self.setBalances(balanceDict, False)
 
-    def setInitialBalances(self, balanceDict):
+    def setInitialBalances(self, balanceDict: {str:float}):
         # takes a dictionary with key balanceName, and value amount
         # sets the initial table of balances in sql file to reflect balanceDict
         self.setBalances(balanceDict, True)
 
-    def addExpenditure(self, amount, name, type):
+    def addExpenditure(self, amount: float, name: str, type: str):
         # adds an expenditure to the expenditures table
         self.db.execute("INSERT INTO expenditures (amount, name, type) VALUES((?), (?), (?) );", [amount, name, type])
         self.db.commit()
 
-    def updateExpenditureValues(self, primaryUserKey, values):
+    def updateExpenditureValues(self, primaryUserKey: int, values):
         # updates the values of the primaryUserKey in expenditureTable
         self.updateTableValues('expenditures', primaryUserKey, values)
 
@@ -80,7 +80,7 @@ class FinanceManagerModel:
 
     ### HELPER METHODS ###
 
-    def updateTableValues(self, tableName, primaryUserKey, values):
+    def updateTableValues(self, tableName: str, primaryUserKey: int, values):
         # updates the values of the data with the primaryUserKey with the given values
         for key in values.keys():
             self.db.execute( '''UPDATE {} 
@@ -89,7 +89,7 @@ class FinanceManagerModel:
                                     id = (?)'''.format(tableName, key), [values[key], primaryUserKey])
         self.db.commit()
 
-    def setBalances(self, balanceDict: {str:int}, isInitial):
+    def setBalances(self, balanceDict: {str:float}, isInitial: bool):
         # takes a dictionary with key balanceName, and value amount
         # sets the table of balances in sql file to reflect balanceDict
         if isInitial:                                       #choose the table to edit

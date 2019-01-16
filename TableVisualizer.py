@@ -35,7 +35,7 @@ class TableVisualizer(tkinter.Frame):
         self.currentBalance.setBalances(self.databases.fetchCurrentBalances())
         self.expenditures.setExpenditures(self.databases.fetchExpenditures())
 
-    def sendValuesToDatabase(self, tableName, rowIndex, values):
+    def sendValuesToDatabase(self, tableName: str, rowIndex: int, values):
         # sends the new data from the modified table widgets to the DatabaseManager
         if tableName == 'expenditures':
             try:

@@ -1,10 +1,11 @@
 import pathlib
 import tkinter
 from DateSelectionWidget import DateSelectionWidget
+from DateSelectionWidget import DateSelectionListener
 
 rootPath = "finances/"
 
-class FileDisplay(tkinter.Frame):
+class FileDisplay(tkinter.Frame, DateSelectionListener):
     # is a widget that allows the user to choose which database to access
 
     def __init__(self, parent):

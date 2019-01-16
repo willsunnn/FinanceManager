@@ -15,6 +15,10 @@ defaultbg = 'black'
 
 defaultYearEntryWidth = 5
 
+class DateSelectionListener():
+    def loadTableData(path: pathlib.Path):
+        pass
+
 class DateSelectionWidget(tkinter.Frame):
     # Is a widget used to select a date for file selection
 
@@ -61,9 +65,9 @@ class DateSelectionWidget(tkinter.Frame):
                                              fg=self.fgcol, bg=self.bgcol)
         self.retrieveButton.grid(row=0, column=2)
 
-    def addListener(self, superWidget):
+    def addListener(self, listener: DateSelectionListener):
         # adds a listener that will execute the method loadTableData(pathlib.Path) when button is pressed
-        self.listener = superWidget
+        self.listener = listener
 
     def buttonSubmit(self):
         if(self.checkDone()):
@@ -85,3 +89,4 @@ class DateSelectionWidget(tkinter.Frame):
     # returns a dictionary of the selected date
     def getDate(self) -> {str:int}:
         return {"month":monthDict[self.monthVar.get()], "year":int(self.yearSelect.get())}
+

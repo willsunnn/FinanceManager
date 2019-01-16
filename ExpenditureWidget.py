@@ -58,7 +58,7 @@ class ExpenditureWidget(tkinter.Frame):
         self.expenditureTable.setRowValues(headerValues, 0)
         self.expenditureTable.pack()
 
-    def setEditable(self, editable):
+    def setEditable(self, editable: bool):
         # passes the editable variable to the table widget to be appropriately handled
         self.expenditureTable.setEditable(editable)
 
@@ -73,7 +73,7 @@ class ExpenditureWidget(tkinter.Frame):
         for blankRow in range(len(expenditureMatrix)+1,self.fieldCount+1):
             self.expenditureTable.setRowValues(['-']*self.expenditureTable.colSize, blankRow)
 
-    def sendValuesToDatabase(self, rowIndex, values):
+    def sendValuesToDatabase(self, rowIndex: int, values: []):
         # passes the row values to the parent widget to the DatabaseModel to be processed and stored in the database
         valuedict = {'amount':TableWidget.unformatAsCurrency(values[0]), 'name':values[1], 'type':values[2]}
         self.parentWidget.sendValuesToDatabase("expenditures", rowIndex, valuedict)

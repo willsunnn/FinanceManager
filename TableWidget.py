@@ -11,7 +11,7 @@ class TableWidget(tkinter.Frame):
     def __init__(self, parent, colSize, defaultRowSize, **optional_arguments):
         # initializes the frame and its subframes
         tkinter.Frame.__init__(self, parent)
-        self.parentWidget = parent
+        self.listener = parent
         self.colSize = colSize              # col size should remain constant
         self.rowSize = defaultRowSize       # rows can be inserted, hence the use of a linkedlist (unless axis is inverted)
         self.table = linkedList([[None for i in range(self.colSize)] for j in range(self.rowSize)])
@@ -205,7 +205,7 @@ class TableWidget(tkinter.Frame):
 
     def sendValuesToDatabase(self, rowIndex, values):
         # sends the new data from the row to the database to be stored
-        self.parentWidget.sendValuesToDatabase(rowIndex, values)
+        self.listener.sendValuesToDatabase(rowIndex, values)
 
     def updateLabelText(self, rowIndex, colIndex):
         # updates the text of a label at the given position
