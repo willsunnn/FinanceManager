@@ -2,6 +2,8 @@ import tkinter
 import pathlib
 from TableVisualizer import TableVisualizer
 from FileDisplay import FileDisplay
+from DataVisualizer import DataVisualizer
+from FinanceManagerModel import FinanceManagerModel
 
 
 class FinanceManagerGUI(tkinter.Frame):
@@ -17,9 +19,15 @@ class FinanceManagerGUI(tkinter.Frame):
         self.tv = TableVisualizer(self)
         self.tv.grid(row=0, column=1)
 
+        self.dv = DataVisualizer(self)
+        self.dv.grid(row=0, column=2)
+
     def loadTableData(self, path: pathlib.Path):
-        # called by the FileDisplay to tell the TableVisulizer which database file to access
-        self.tv.loadTableData(path)
+        # called by the FileDisplay to tell the TableVisualizer which database file to access
+        print('load table data called')
+        model = FinanceManagerModel(path)
+        self.tv.loadTableData(model)
+        self.dv.loadTableData(model)
 
 def run():
     # the main method used to run the application

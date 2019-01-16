@@ -1,5 +1,5 @@
 import tkinter
-from TableWidget import *
+from TableWidget import TableWidget
 
 defaultFieldCount = 4
 defaultFirstColWidth = 10

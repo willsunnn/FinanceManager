@@ -1,7 +1,5 @@
 import tkinter
 import pathlib
-from tkinter.ttk import Separator
-from DateSelectionWidget import DateSelectionWidget
 from BalanceWidget import BalanceWidget
 from ExpenditureWidget import ExpenditureWidget
 from FinanceManagerModel import FinanceManagerModel
@@ -28,18 +26,18 @@ class TableVisualizer(tkinter.Frame):
         self.currentBalance = BalanceWidget(self, name='Current Balance')
         self.currentBalance.grid(row=2, column=0)
 
-    def loadTableData(self, path: [pathlib.Path]):
+    def loadTableData(self, model: FinanceManagerModel):
         # links the table to a DatabaseManager and updates the table widgets accordingly
-        self.databases = FinanceManagerModel(path)
-        self.initialBalance.setBalances(self.databases.fetchInitialBalances())
-        self.currentBalance.setBalances(self.databases.fetchCurrentBalances())
-        self.expenditures.setExpenditures(self.databases.fetchExpenditures())
+        self.database = model
+        self.initialBalance.setBalances(self.database.fetchInitialBalances())
+        self.currentBalance.setBalances(self.database.fetchCurrentBalances())
+        self.expenditures.setExpenditures(self.database.fetchExpenditures())
 
     def sendValuesToDatabase(self, tableName: str, rowIndex: int, values):
         # sends the new data from the modified table widgets to the DatabaseManager
         if tableName == 'expenditures':
             try:
-                primaryUserKey = self.databases.fetchExpenditures()[rowIndex][0]
-                self.databases.updateExpenditureValues(primaryUserKey, values)
+                primaryUserKey = self.database.fetchExpenditures()[rowIndex][0]
+                self.database.updateExpenditureValues(primaryUserKey, values)
             except IndexError:  #This means the database was empty there
-                self.databases.addExpenditure(values['amount'], values['name'], values['type'])
+                self.database.addExpenditure(values['amount'], values['name'], values['type'])

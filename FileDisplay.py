@@ -2,8 +2,12 @@ import pathlib
 import tkinter
 from DateSelectionWidget import DateSelectionWidget
 from DateSelectionWidget import DateSelectionListener
+import os
 
-rootPath = "finances/"
+if os.name == 'nt':     #windows
+    rootPath = 'C:\\finances\\'
+else:
+    rootPath = "finances/"
 
 class FileDisplay(tkinter.Frame, DateSelectionListener):
     # is a widget that allows the user to choose which database to access

@@ -62,7 +62,7 @@ class FinanceManagerModel:
         # updates the values of the primaryUserKey in expenditureTable
         self.updateTableValues('expenditures', primaryUserKey, values)
 
-    def getExpenditureByType(self):
+    def fetchExpendituresByType(self):
         # returns a matrix containing the expenditure by type
         return self.db.execute("SELECT type, SUM(amount) FROM expenditures GROUP BY type;").fetchall()
 
