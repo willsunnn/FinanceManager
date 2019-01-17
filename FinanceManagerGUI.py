@@ -24,7 +24,6 @@ class FinanceManagerGUI(tkinter.Frame):
 
     def loadTableData(self, path: pathlib.Path):
         # called by the FileDisplay to tell the TableVisualizer which database file to access
-        print('load table data called')
         model = FinanceManagerModel(path)
         self.tv.loadTableData(model)
         self.dv.loadTableData(model)

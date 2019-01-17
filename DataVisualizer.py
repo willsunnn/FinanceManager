@@ -1,4 +1,8 @@
 import tkinter
+import matplotlib
+matplotlib.use('TkAgg')
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 from FinanceManagerModel import FinanceManagerModel
 from TableWidget import TableWidget
 
@@ -9,6 +13,8 @@ class DataVisualizer(tkinter.Frame):
         tkinter.Frame.__init__(self, parent)
         self.processOptionalArguments(optional_arguments)
         self.loadSpendingByCategory()
+        self.pieChart = PieChart(self)
+        self.pieChart.grid(row=1)
 
     def processOptionalArguments(self, optional_arguments):
         if 'fieldCount' in optional_arguments.keys():
@@ -20,7 +26,7 @@ class DataVisualizer(tkinter.Frame):
         self.categoryTable = TableWidget(self, 2, self.fieldCount + 1)
         headerValues = ['Type', 'Amount']
         self.categoryTable.setRowValues(headerValues, 0)
-        self.categoryTable.pack()
+        self.categoryTable.grid(row=0)
 
     def loadTableData(self, model: FinanceManagerModel):
         self.database = model
@@ -28,7 +34,7 @@ class DataVisualizer(tkinter.Frame):
 
     def processData(self):
         data = self.database.fetchExpendituresByType()
-        print(type(data))
+        self.pieChart.constructPieChart(data)
         for rowIndex in range(len(data)):
             self.categoryTable.setRowValues([data[rowIndex][0], data[rowIndex][1]], rowIndex+1)
 
@@ -36,3 +42,19 @@ class DataVisualizer(tkinter.Frame):
 class PieChart(tkinter.Frame):
     def __init__(self, parent):
         tkinter.Frame.__init__(self, parent)
+        self.chartWidget = None
+
+    def constructPieChart(self, data):
+        if self.chartWidget != None:
+            self.chartWidget.grid_forget()
+        labels = []
+        values = []
+        for rowIndex in range(len(data)):
+            labels.append(data[rowIndex][0])
+            values.append(data[rowIndex][1])
+        fig = Figure(figsize=(2,2))
+        a = fig.add_subplot(111)
+        a.pie(values, labels=labels)
+        canvas = FigureCanvasTkAgg(fig, master=self)
+        self.chartWidget = canvas.get_tk_widget()
+        self.chartWidget.pack()
