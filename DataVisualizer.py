@@ -35,8 +35,6 @@ class DataVisualizer(tkinter.Frame):
     def processData(self):
         data = self.database.fetchExpendituresByType()
         self.pieChart.constructPieChart(data)
-        for rowIndex in range(len(data)):
-            self.categoryTable.setRowValues([data[rowIndex][0], data[rowIndex][1]], rowIndex+1)
 
 
 class PieChart(tkinter.Frame):
@@ -46,7 +44,7 @@ class PieChart(tkinter.Frame):
 
     def constructPieChart(self, data):
         if self.chartWidget != None:
-            self.chartWidget.grid_forget()
+            self.chartWidget.grid_remove()
         labels = []
         values = []
         for rowIndex in range(len(data)):
@@ -57,4 +55,4 @@ class PieChart(tkinter.Frame):
         a.pie(values, labels=labels)
         canvas = FigureCanvasTkAgg(fig, master=self)
         self.chartWidget = canvas.get_tk_widget()
-        self.chartWidget.pack()
+        self.chartWidget.grid(row=0, column=0)
