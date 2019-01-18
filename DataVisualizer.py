@@ -6,7 +6,7 @@ from matplotlib.figure import Figure
 from FinanceManagerModel import FinanceManagerModel
 from TableWidget import TableWidget
 
-defaultFieldCount = 5
+defaultFieldCount = 2
 
 class DataVisualizer(tkinter.Frame):
     def __init__(self, parent, **optional_arguments):
@@ -30,26 +30,23 @@ class DataVisualizer(tkinter.Frame):
 
     def loadTableData(self, model: FinanceManagerModel):
         self.database = model
-        self.processData()
-
-    def processData(self):
         data = self.database.fetchExpendituresByType()
-        self.pieChart.constructPieChart(data)
-
+        labels = []
+        values = []
+        for rowIndex in range(len(data)):
+            labels.append(data[rowIndex][0])
+            values.append(data[rowIndex][1])
+            self.categoryTable.setRowValues([labels[rowIndex], values[rowIndex]], rowIndex+1)
+        self.pieChart.constructPieChart(labels, values)
 
 class PieChart(tkinter.Frame):
     def __init__(self, parent):
         tkinter.Frame.__init__(self, parent)
         self.chartWidget = None
 
-    def constructPieChart(self, data):
+    def constructPieChart(self, labels, values):
         if self.chartWidget != None:
             self.chartWidget.grid_remove()
-        labels = []
-        values = []
-        for rowIndex in range(len(data)):
-            labels.append(data[rowIndex][0])
-            values.append(data[rowIndex][1])
         fig = Figure(figsize=(2,2))
         a = fig.add_subplot(111)
         a.pie(values, labels=labels)

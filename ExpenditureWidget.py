@@ -1,7 +1,7 @@
 import tkinter
 from TableWidget import *
 
-defaultFieldCount = 10
+defaultFieldCount = 5
 defaultFieldColWidths = [6,12,12]
 
 defaultTitleFont = ("Helvetica", 16)

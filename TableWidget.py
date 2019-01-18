@@ -15,6 +15,7 @@ class TableWidget(tkinter.Frame):
         self.colSize = colSize              # col size should remain constant
         self.rowSize = defaultRowSize       # rows can be inserted, hence the use of a linkedlist (unless axis is inverted)
         self.table = linkedList([[None for i in range(self.colSize)] for j in range(self.rowSize)])
+        self.editButtons = None
         self.processOptionalArguments(optional_arguments)
         self.calculateCellWidth()
         self.addLabels()
@@ -78,8 +79,7 @@ class TableWidget(tkinter.Frame):
 
     def setValue(self, value, rowIndex, colIndex):
         # sets the text in the label at the given position
-        if rowIndex>=self.rowSize or colIndex>=self.colSize:
-            self.increaseMatrix(rowIndex, colIndex)
+        self.increaseMatrix(rowIndex)
         row = self.table.getNodeAt(rowIndex).value
         row[colIndex] = value
         self.updateLabelText(rowIndex, colIndex)
@@ -89,20 +89,40 @@ class TableWidget(tkinter.Frame):
         for valueIndex in range(len(values)):
             self.setValue(values[valueIndex], rowIndex, valueIndex)
 
-    def increaseMatrix(self, newRowCount):
-        #increase the size of the value matrix
-        #update the values of self.colSize and self.rowSize
-        #increase the size of the width table matrix, if it exists
-            #use the 'additionalCellWidths' optional argument to determine the widths, or take widths from previous cells
-        #update the labels to reflect the new values and the new sizes
-        #expand editButtons matrix
+    def increaseMatrix(self, newRowNumber):
+        ogsize = self.table.getLength()
+        if (newRowNumber >= self.rowSize):
+            # increase the size of the value matrix
+            newRows = newRowNumber-(self.rowSize-1)
+            self.table.append(linkedList([[None for i in range(self.colSize)] for j in range(newRows)]))
+            self.rowSize = self.table.getLength()
 
-        print("implement increaseMatrix in TableWidget! NOT DONE!")
+            # increase the size of the edit button list
+            if self.editButtons != None:
+                for rowIndex in range(newRows):
+                    self.editButtons.append(None)
 
-        if (newRowCount > self.rowSize):
-            additionalRows = newRowCount - self.rowSize
-            self.table.append(linkedList([[None for i in range(self.colSize)] for j in range(additionalRows)]))
-            self.addLabels()
+            # increase the size of the table matrix
+            for rowIndex in range(ogsize, ogsize+newRows):
+                self.displayMatrix.append([tkinter.Label(self) for i in range(self.colSize)])
+                self.setupRow(rowIndex)
+
+            # increase the size of the width table matrix, if it exists
+            # use the 'additionalCellWidths' optional argument to determine the widths, or take widths from previous cells
+            if self.widthTable!=None:
+                if self.additionalCellWidth!=None:
+                    for j in range(newRows):
+                        self.widthTable.append([self.additionalCellWidth] for i in range(self.colSize))
+                else:
+                    for j in range(newRows):
+                        self.widthTable.append(self.widthTable[-1])
+
+            # format the labels
+            for rowIndex in range(ogsize, ogsize+newRows):
+                self.setupRow(rowIndex)
+
+            # update the edit buttons
+            self.setEditable(self.editable)
 
     def addLabels(self):
         # sets up the labels and inserts the database values
@@ -112,40 +132,43 @@ class TableWidget(tkinter.Frame):
 
         # for every cell
         for rowIndex in range(self.rowSize):
-            if self.editable and rowIndex>0:
-                button = tkinter.Button(self, text="Edit")
-                button.config(command=lambda b=button, r=rowIndex: self.editPressed(b,r))
-                self.editButtons[rowIndex] = button
-                self.editButtons[rowIndex].grid(row=rowIndex, column=self.colSize)
-            for colIndex in range(self.colSize):
-                #create a label & set default text
-                label = self.displayMatrix[rowIndex][colIndex]
-                label.config(text='-')
+            self.setupRow(rowIndex)
 
-                #set the label width
-                try:
-                    if self.widthTable[rowIndex][colIndex] == None:                 #if a null value was given
-                        label.config(width=self.cellWidth)
-                    else:                                                           #if a value was given
-                        label.config(width=self.widthTable[rowIndex][colIndex])
-                except:  # if a table wasn't given or if the table was expanded and the value is out of bounds
+    def setupRow(self, rowIndex):
+        if self.editable and rowIndex > 0:
+            button = tkinter.Button(self, text="Edit")
+            button.config(command=lambda b=button, r=rowIndex: self.editPressed(b, r))
+            self.editButtons[rowIndex] = button
+            self.editButtons[rowIndex].grid(row=rowIndex, column=self.colSize)
+        for colIndex in range(self.colSize):
+            # create a label & set default text
+            label = self.displayMatrix[rowIndex][colIndex]
+            label.config(text='-')
+
+            # set the label width
+            try:
+                if self.widthTable[rowIndex][colIndex] == None:  # if a null value was given
                     label.config(width=self.cellWidth)
+                else:  # if a value was given
+                    label.config(width=self.widthTable[rowIndex][colIndex])
+            except:  # if a table wasn't given or if the table was expanded and the value is out of bounds
+                label.config(width=self.cellWidth)
 
-                #set the label's justification and font
-                if rowIndex == 0:           #header row
-                    if self.headFont != None:
-                        label.config(font=self.headFont)
-                    label.config(anchor=directionToCompass[self.headJustify])
-                else:                       #entry row
-                    if self.entryFont != None:
-                        label.config(font=self.entryFont)
-                    label.config(anchor=directionToCompass[self.entryJustify])
+            # set the label's justification and font
+            if rowIndex == 0:  # header row
+                if self.headFont != None:
+                    label.config(font=self.headFont)
+                label.config(anchor=directionToCompass[self.headJustify])
+            else:  # entry row
+                if self.entryFont != None:
+                    label.config(font=self.entryFont)
+                label.config(anchor=directionToCompass[self.entryJustify])
 
-                #position the label
-                if self.invertAxis:
-                    label.grid(row=colIndex, column=rowIndex)
-                else:
-                    label.grid(row=rowIndex, column=colIndex)
+            # position the label
+            if self.invertAxis:
+                label.grid(row=colIndex, column=rowIndex)
+            else:
+                label.grid(row=rowIndex, column=colIndex)
 
     def setEditable(self, editable):
         # sets up the editable buttons
@@ -296,4 +319,3 @@ class linkedList():
             node = node.nextNode
         list.append(node.value)
         return list
-
