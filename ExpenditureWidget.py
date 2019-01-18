@@ -1,14 +1,15 @@
 import tkinter
-from TableWidget import *
+from TableWidget import TableWidget
+from FinanceManagerModel import ToDatabaseListener
 
-defaultFieldCount = 5
-defaultFieldColWidths = [6,12,12]
+default_field_count = 10
+default_field_col_widths = [6,12,12]
 
-defaultTitleFont = ("Helvetica", 16)
-defaultTableHeadFont = ("Helvetica", 14)
-defaultEntryFont = ("Helvetica", 11)
+default_title_font = ("Helvetica", 16)
+default_table_head_font = ("Helvetica", 14)
+default_entry_font = ("Helvetica", 11)
+default_title_text = 'Expenditures'
 
-defaultTitleText = 'Expenditures'
 
 class ExpenditureWidget(tkinter.Frame):
     # is a widget that displays the expenditures in the database
@@ -16,64 +17,73 @@ class ExpenditureWidget(tkinter.Frame):
     def __init__(self, parent, **optional_arguments):
         # initializes the frame and subframes
         tkinter.Frame.__init__(self, parent)
-        self.parentWidget = parent
-        self.fieldCount = defaultFieldCount
+        self.listener: ToDatabaseListener = None
+        self.field_count = default_field_count
 
-        self.processOptionalArguments(optional_arguments)
-        self.setupTitleLabel()
-        self.setupExpenditureTable()
+        # setup the default parameters then process the optional arguments
+        self.title_font = default_title_font
+        self.head_font = default_table_head_font
+        self.entry_font = default_entry_font
+        self.title_text = default_title_text
+        self.process_optional_arguments(optional_arguments)
 
-    def processOptionalArguments(self, optional_arguments):
+        # setup the title label
+        self.head_label = None
+        self.setup_title_label()
+
+        # setup the expenditure table
+        self.expenditure_table = None
+        self.setup_expenditure_table()
+
+    def add_listener(self, listener: ToDatabaseListener):
+        self.listener = listener
+
+    def process_optional_arguments(self, optional_arguments):
         # processes the optional arguments passed to the constructor
-        if 'titleFont' in optional_arguments:
-            self.titleFont = optional_arguments['titleFont']
-        else:
-            self.titleFont = defaultTitleFont
-        if 'headFont' in optional_arguments:
-            self.headFont = optional_arguments['headFont']
-        else:
-            self.headFont = defaultTableHeadFont
-        if 'entryFont' in optional_arguments:
-            self.entryFont = optional_arguments['entryFont']
-        else:
-            self.entryFont = defaultEntryFont
+        if 'title_font' in optional_arguments:
+            self.title_font = optional_arguments['title_font']
+        if 'head_font' in optional_arguments:
+            self.head_font = optional_arguments['head_font']
+        if 'entry_font' in optional_arguments:
+            self.entry_font = optional_arguments['entry_font']
         if 'name' in optional_arguments:
-            self.titleText = optional_arguments['name']
-        else:
-            self.titleText = defaultTitleText
+            self.title_text = optional_arguments['name']
 
-    def setupTitleLabel(self):
+    def setup_title_label(self):
         # adds a title label above the table
-        self.headLabel = tkinter.Label(self)
-        self.headLabel.config(text=self.titleText, font=self.titleFont)
-        self.headLabel.pack()
+        self.head_label = tkinter.Label(self)
+        self.head_label.config(text=self.title_text, font=self.title_font)
+        self.head_label.pack()
 
-    def setupExpenditureTable(self):
+    def setup_expenditure_table(self):
         # adds the expenditure table
-        tableCellWidth = [defaultFieldColWidths] * (self.fieldCount + 1)
-        # invertAxis is false because the data will be added in rows
-        self.expenditureTable = TableWidget(self, 3, self.fieldCount + 1, invertAxis=False, widthTable=tableCellWidth,
-                                        headFont=self.headFont, entryFont=self.entryFont)
-        headerValues = ['Amount', 'Name', 'Type']
-        self.expenditureTable.setRowValues(headerValues, 0)
-        self.expenditureTable.pack()
+        table_cell_width = [default_field_col_widths] * (self.field_count + 1)
+        # invert_axis is false because the data will be added in rows
+        self.expenditure_table = TableWidget(self, 3, self.field_count + 1, invert_axis=False,
+                                             width_table=table_cell_width, head_font=self.head_font,
+                                             entry_font=self.entry_font)
+        self.expenditure_table.add_listener(self)
+        header_values = ['Amount', 'Name', 'Type']
+        self.expenditure_table.set_row_values(header_values, 0)
+        self.expenditure_table.pack()
 
-    def setEditable(self, editable: bool):
+    def set_editable(self, editable: bool):
         # passes the editable variable to the table widget to be appropriately handled
-        self.expenditureTable.setEditable(editable)
+        self.expenditure_table.set_editable(editable)
 
-    def setExpenditures(self, expenditureMatrix:[[]]):
+    def setExpenditures(self, expenditure_matrix:[[]]):
         # passes the label values to the table to be inserted into the labels
-        self.setEditable(True)
-        for entryIndex in range(len(expenditureMatrix)):
-            labelRowIndex = entryIndex+1
-            values = [TableWidget.formatAsCurrency(expenditureMatrix[entryIndex][1]), expenditureMatrix[entryIndex][2], expenditureMatrix[entryIndex][3]]
-            self.expenditureTable.setRowValues(values, labelRowIndex)
+        self.set_editable(True)
+        for entry_index in range(len(expenditure_matrix)):
+            label_row_index = entry_index+1
+            values = [TableWidget.format_as_currency(expenditure_matrix[entry_index][1]),
+                      expenditure_matrix[entry_index][2], expenditure_matrix[entry_index][3]]
+            self.expenditure_table.set_row_values(values, label_row_index)
 
-        for blankRow in range(len(expenditureMatrix)+1,self.fieldCount+1):
-            self.expenditureTable.setRowValues(['-']*self.expenditureTable.colSize, blankRow)
+        for blank_row_index in range(len(expenditure_matrix)+1,self.field_count+1):
+            self.expenditure_table.set_row_values(['-']*self.expenditure_table.col_size, blank_row_index)
 
-    def sendValuesToDatabase(self, rowIndex: int, values: []):
-        # passes the row values to the parent widget to the DatabaseModel to be processed and stored in the database
-        valuedict = {'amount':TableWidget.unformatAsCurrency(values[0]), 'name':values[1], 'type':values[2]}
-        self.parentWidget.sendValuesToDatabase("expenditures", rowIndex, valuedict)
+    def send_values_to_database(self, row_index: int, values: []):
+        # passes the row values to the listener to the DatabaseModel to be processed and stored in the database
+        value_dict = {'amount': TableWidget.unformat_from_currency(values[0]), 'name': values[1], 'type': values[2]}
+        self.listener.send_values_to_database("expenditures", row_index, value_dict)

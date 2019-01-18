@@ -1,251 +1,255 @@
 import tkinter
 
-defaultCellWidth = 5
-defaultHeaderJustify = 'center'
-defaultEntryJustify = 'left'
-directionToCompass = {'center':'center', 'left':'w', "right":'e'}
+default_cell_width = 5
+default_header_justify = 'center'
+default_entry_justify = 'left'
+direction_to_compass = {'center': 'center', 'left': 'w', "right": 'e'}
+
 
 class TableWidget(tkinter.Frame):
     # is a widget that controls a matrix of labels and manages their changes
 
-    def __init__(self, parent, colSize, defaultRowSize, **optional_arguments):
-        # initializes the frame and its subframes
+    def __init__(self, parent, col_size, default_row_size, **optional_arguments):
+        # initializes the frame and its sub-frames
         tkinter.Frame.__init__(self, parent)
-        self.listener = parent
-        self.colSize = colSize              # col size should remain constant
-        self.rowSize = defaultRowSize       # rows can be inserted, hence the use of a linkedlist (unless axis is inverted)
-        self.table = linkedList([[None for i in range(self.colSize)] for j in range(self.rowSize)])
-        self.editButtons = None
-        self.processOptionalArguments(optional_arguments)
-        self.calculateCellWidth()
-        self.addLabels()
+        self.listener = None
+        self.col_size = col_size              # col size should remain constant (unless invert_axis)
+        self.row_size = default_row_size      # rows can be inserted, hence the use of a LinkedList
+        self.table = LinkedList([[None for i in range(self.col_size)] for j in range(self.row_size)])
+        self.edit_buttons = None
 
-    def processOptionalArguments(self, optional_arguments):
+        # setting up and processing additional arguments
+        self.invert_axis = False
+        self.width_table = None
+        self.additional_cell_width = None
+        self.head_font = None
+        self.entry_font = None
+        self.editable = False
+        self.entry_fields = None
+        self.entry_justify = default_entry_justify
+        self.head_justify = default_header_justify
+        if not self.invert_axis:
+            self.width = default_cell_width * self.col_size
+        else:
+            self.width = default_cell_width * self.row_size
+        self.process_optional_arguments(optional_arguments)
+        self.cell_width = None
+        self.calculate_cell_width()
+
+        # set up the labels of the table widget
+        self.add_labels()
+
+    def add_listener(self, listener):
+        self.listener = listener
+
+    def process_optional_arguments(self, optional_arguments):
         # processes the optional arguments passed to the constructor
 
         # allow fields to be added as new cols as opposed to new rows
-        if 'invertAxis' in optional_arguments:
-            self.invertAxis = optional_arguments['invertAxis']
-        else:
-            self.invertAxis = False
-
+        if 'invert_axis' in optional_arguments:
+            self.invert_axis = optional_arguments['invert_axis']
         if 'width' in optional_arguments:
             self.width = optional_arguments['width']
-        else:
-            if not self.invertAxis:
-                self.width = defaultCellWidth * self.colSize
-            else:
-                self.width = defaultCellWidth * self.rowSize
 
+        # turns on/off the edit buttons
         if 'editable' in optional_arguments:
-            self.setEditable(optional_arguments['editable'])
+            self.set_editable(optional_arguments['editable'])
         else:
-            self.setEditable(False)
+            self.set_editable(False)
 
         # allows for greater control over customization of the label widths
-        if 'widthTable' in optional_arguments:
-            self.widthTable = optional_arguments['widthTable']
-        else:
-            self.widthTable = None
-        if 'additionalCellWidths' in optional_arguments:
-            self.additionalCellWidth = optional_arguments['additionalCellWidth']
-        else:
-            self.additionalCellWidth = None
+        if 'width_table' in optional_arguments:
+            self.width_table = optional_arguments['width_table']
+        if 'additional_cell_width' in optional_arguments:
+            self.additional_cell_width = optional_arguments['additional_cell_width']
 
         # sets the table's header fonts and label fonts
-        self.headFont = None
-        if 'headFont' in optional_arguments:
-            self.headFont = optional_arguments['headFont']
-        self.entryFont = None
-        if 'entryFont' in optional_arguments:
-            self.entryFont = optional_arguments['entryFont']
+        if 'head_font' in optional_arguments:
+            self.head_font = optional_arguments['head_font']
+        if 'entry_font' in optional_arguments:
+            self.entry_font = optional_arguments['entry_font']
 
         # sets the table's header and entry justify constraints
-        if 'headJustify' in optional_arguments:
-            self.headJustify = optional_arguments['headJustify']
-        else:
-            self.headJustify = defaultHeaderJustify
-        if 'entryJustify' in optional_arguments:
-            self.entryJustify = optional_arguments['entryJustify']
-        else:
-            self.entryJustify = defaultEntryJustify
+        if 'head_justify' in optional_arguments:
+            self.head_justify = optional_arguments['head_justify']
+        if 'entry_justify' in optional_arguments:
+            self.entry_justify = optional_arguments['entry_justify']
 
-    def calculateCellWidth(self):
+    def calculate_cell_width(self):
         # sets the default cell width if no parameters regarding width were given
-        if not self.invertAxis :
-            self.cellWidth = int(self.width / self.colSize)
+        if not self.invert_axis :
+            self.cell_width = int(self.width / self.col_size)
         else:
-            self.cellWidth = int(self.width / self.rowSize)
+            self.cell_width = int(self.width / self.row_size)
 
-    def setValue(self, value, rowIndex, colIndex):
+    def set_value(self, value, row_index, col_index):
         # sets the text in the label at the given position
-        self.increaseMatrix(rowIndex)
-        row = self.table.getNodeAt(rowIndex).value
-        row[colIndex] = value
-        self.updateLabelText(rowIndex, colIndex)
+        self.increase_matrix(row_index)
+        row = self.table.get_node_at(row_index).value
+        row[col_index] = value
+        self.update_label_text(row_index, col_index)
 
-    def setRowValues(self, values:[], rowIndex):
+    def set_row_values(self, values:[], row_index):
         # sets the texts in the labels at the given row
-        for valueIndex in range(len(values)):
-            self.setValue(values[valueIndex], rowIndex, valueIndex)
+        for value_index in range(len(values)):
+            self.set_value(values[value_index], row_index, value_index)
 
-    def increaseMatrix(self, newRowNumber):
-        ogsize = self.table.getLength()
-        if (newRowNumber >= self.rowSize):
+    def increase_matrix(self, new_row_num):
+        og_size = self.table.get_length()
+        if new_row_num >= self.row_size:
             # increase the size of the value matrix
-            newRows = newRowNumber-(self.rowSize-1)
-            self.table.append(linkedList([[None for i in range(self.colSize)] for j in range(newRows)]))
-            self.rowSize = self.table.getLength()
+            new_rows = new_row_num-(self.row_size-1)
+            self.table.append(LinkedList([[None for i in range(self.col_size)] for j in range(new_rows)]))
+            self.row_size = self.table.get_length()
 
             # increase the size of the edit button list
-            if self.editButtons != None:
-                for rowIndex in range(newRows):
-                    self.editButtons.append(None)
+            if self.edit_buttons is not None:
+                for row_index in range(new_rows):
+                    self.edit_buttons.append(None)
 
             # increase the size of the table matrix
-            for rowIndex in range(ogsize, ogsize+newRows):
-                self.displayMatrix.append([tkinter.Label(self) for i in range(self.colSize)])
-                self.setupRow(rowIndex)
+            for row_index in range(og_size, og_size+new_rows):
+                self.display_matrix.append([tkinter.Label(self) for i in range(self.col_size)])
+                self.setup_row(row_index)
 
             # increase the size of the width table matrix, if it exists
-            # use the 'additionalCellWidths' optional argument to determine the widths, or take widths from previous cells
-            if self.widthTable!=None:
-                if self.additionalCellWidth!=None:
-                    for j in range(newRows):
-                        self.widthTable.append([self.additionalCellWidth] for i in range(self.colSize))
+            # use the 'additional_cell_width' argument to determine the widths, or take widths from previous cells
+            if self.width_table is not None:
+                if self.additional_cell_width is not None:
+                    for j in range(new_rows):
+                        self.width_table.append([self.additional_cell_width] for i in range(self.col_size))
                 else:
-                    for j in range(newRows):
-                        self.widthTable.append(self.widthTable[-1])
+                    for j in range(new_rows):
+                        self.width_table.append(self.width_table[-1])
 
             # format the labels
-            for rowIndex in range(ogsize, ogsize+newRows):
-                self.setupRow(rowIndex)
+            for row_index in range(og_size, og_size+new_rows):
+                self.setup_row(row_index)
 
             # update the edit buttons
-            self.setEditable(self.editable)
+            self.set_editable(self.editable)
 
-    def addLabels(self):
+    def add_labels(self):
         # sets up the labels and inserts the database values
         # update length in case the table increased in rows
-        self.rowSize = self.table.getLength()
-        self.displayMatrix = [[tkinter.Label(self) for i in range(self.colSize)] for j in range(self.rowSize)]
+        self.row_size = self.table.get_length()
+        self.display_matrix = [[tkinter.Label(self) for i in range(self.col_size)] for j in range(self.row_size)]
 
         # for every cell
-        for rowIndex in range(self.rowSize):
-            self.setupRow(rowIndex)
+        for row_index in range(self.row_size):
+            self.setup_row(row_index)
 
-    def setupRow(self, rowIndex):
-        if self.editable and rowIndex > 0:
+    def setup_row(self, row_index):
+        if self.editable and row_index > 0:
             button = tkinter.Button(self, text="Edit")
-            button.config(command=lambda b=button, r=rowIndex: self.editPressed(b, r))
-            self.editButtons[rowIndex] = button
-            self.editButtons[rowIndex].grid(row=rowIndex, column=self.colSize)
-        for colIndex in range(self.colSize):
+            button.config(command=lambda b=button, r=row_index: self.edit_pressed(b, r))
+            self.edit_buttons[row_index] = button
+            self.edit_buttons[row_index].grid(row=row_index, column=self.col_size)
+        for col_index in range(self.col_size):
             # create a label & set default text
-            label = self.displayMatrix[rowIndex][colIndex]
+            label = self.display_matrix[row_index][col_index]
             label.config(text='-')
 
             # set the label width
             try:
-                if self.widthTable[rowIndex][colIndex] == None:  # if a null value was given
-                    label.config(width=self.cellWidth)
+                if self.width_table[row_index][col_index] is None:  # if a null value was given
+                    label.config(width=self.cell_width)
                 else:  # if a value was given
-                    label.config(width=self.widthTable[rowIndex][colIndex])
+                    label.config(width=self.width_table[row_index][col_index])
             except:  # if a table wasn't given or if the table was expanded and the value is out of bounds
-                label.config(width=self.cellWidth)
+                label.config(width=self.cell_width)
 
             # set the label's justification and font
-            if rowIndex == 0:  # header row
-                if self.headFont != None:
-                    label.config(font=self.headFont)
-                label.config(anchor=directionToCompass[self.headJustify])
+            if row_index == 0:  # header row
+                if self.head_font is not None:
+                    label.config(font=self.head_font)
+                label.config(anchor=direction_to_compass[self.head_justify])
             else:  # entry row
-                if self.entryFont != None:
-                    label.config(font=self.entryFont)
-                label.config(anchor=directionToCompass[self.entryJustify])
+                if self.entry_font is not None:
+                    label.config(font=self.entry_font)
+                label.config(anchor=direction_to_compass[self.entry_justify])
 
             # position the label
-            if self.invertAxis:
-                label.grid(row=colIndex, column=rowIndex)
+            if self.invert_axis:
+                label.grid(row=col_index, column=row_index)
             else:
-                label.grid(row=rowIndex, column=colIndex)
+                label.grid(row=row_index, column=col_index)
 
-    def setEditable(self, editable):
+    def set_editable(self, editable):
         # sets up the editable buttons
         self.editable = editable
         if editable:
-            self.editButtons = [None for i in range(self.rowSize)]
-            for rowIndex in range(self.rowSize):
-                if self.editable and rowIndex > 0:
+            self.edit_buttons = [None for i in range(self.row_size)]
+            for row_index in range(self.row_size):
+                if self.editable and row_index > 0:
                     button = tkinter.Button(self, text="Edit")
-                    button.config(command=lambda b=button, r=rowIndex: self.editPressed(b, r))
-                    self.editButtons[rowIndex] = button
-                    self.editButtons[rowIndex].grid(row=rowIndex, column=self.colSize)
+                    button.config(command=lambda b=button, r=row_index: self.edit_pressed(b, r))
+                    self.edit_buttons[row_index] = button
+                    self.edit_buttons[row_index].grid(row=row_index, column=self.col_size)
 
-    def editPressed(self, button: tkinter.Button, rowIndex: int):
+    def edit_pressed(self, button: tkinter.Button, row_index: int):
         # changes the edit button to back and changes labels to fields
-        button.config(text="Done", command=lambda b=button, r=rowIndex: self.donePressed(b, r))
-        self.entryFields = [tkinter.Entry(self) for i in range(self.colSize)]
-        dataMatrix = self.table.toList()
-        for colIndex in range(self.colSize):
+        button.config(text="Done", command=lambda b=button, r=row_index: self.done_pressed(b, r))
+        self.entry_fields = [tkinter.Entry(self) for i in range(self.col_size)]
+        data_matrix = self.table.to_list()
+        for col_index in range(self.col_size):
             # create a field
-            field = self.entryFields[colIndex]
-            self.displayMatrix[rowIndex][colIndex].grid_remove()
-            TableWidget.setFieldText(field, dataMatrix[rowIndex][colIndex])
+            field = self.entry_fields[col_index]
+            self.display_matrix[row_index][col_index].grid_remove()
+            TableWidget.set_field_text(field, data_matrix[row_index][col_index])
 
             # set the field width
-            try:
-                if self.widthTable[rowIndex][colIndex] == None:  # if a null value was given
-                    field.config(width=self.cellWidth)
+            if self.width_table is not None:
+                if self.width_table[row_index][col_index] is None:  # if a null value was given
+                    field.config(width=self.cell_width)
                 else:  # if a value was given
-                    field.config(width=self.widthTable[rowIndex][colIndex])
-            except:  # if a table wasn't given or if the table was expanded and the value is out of bounds
-                field.config(width=self.cellWidth)
+                    field.config(width=self.width_table[row_index][col_index])
+            else:  # if a table wasn't given or if the table was expanded and the value is out of bounds
+                field.config(width=self.cell_width)
 
             # position the field
-            if self.invertAxis:
-                field.grid(row=colIndex, column=rowIndex)
+            if self.invert_axis:
+                field.grid(row=col_index, column=row_index)
             else:
-                field.grid(row=rowIndex, column=colIndex)
+                field.grid(row=row_index, column=col_index)
 
-    def donePressed(self, button: tkinter.Button, rowIndex: int):
+    def done_pressed(self, button: tkinter.Button, row_index: int):
         # changes the done button back to edit, changes fields to labels, and sends data to the database
-        button.config(text="Edit", command=lambda b=button, r=rowIndex: self.editPressed(b, r))
+        button.config(text="Edit", command=lambda b=button, r=row_index: self.edit_pressed(b, r))
         values = []
-        for colIndex in range(self.colSize):
+        for col_index in range(self.col_size):
             # update the text
-            label = self.displayMatrix[rowIndex][colIndex]
-            text = self.entryFields[colIndex].get()
-            self.entryFields[colIndex].grid_remove()
+            label = self.display_matrix[row_index][col_index]
+            text = self.entry_fields[col_index].get()
+            self.entry_fields[col_index].grid_remove()
             label.config(text=text)
             values.append(text)
             # position the label
-            if self.invertAxis:
-                label.grid(row=colIndex, column=rowIndex)
+            if self.invert_axis:
+                label.grid(row=col_index, column=row_index)
             else:
-                label.grid(row=rowIndex, column=colIndex)
-        self.sendValuesToDatabase(rowIndex-1, values)
+                label.grid(row=row_index, column=col_index)
+        self.send_values_to_database(row_index-1, values)
 
-    def sendValuesToDatabase(self, rowIndex, values):
+    def send_values_to_database(self, row_index, values):
         # sends the new data from the row to the database to be stored
-        self.listener.sendValuesToDatabase(rowIndex, values)
+        self.listener.send_values_to_database(row_index, values)
 
-    def updateLabelText(self, rowIndex, colIndex):
+    def update_label_text(self, row_index, col_index):
         # updates the text of a label at the given position
-        matrix = self.table.toList()
-        label = self.displayMatrix[rowIndex][colIndex]
-        label.config(text=matrix[rowIndex][colIndex])
+        matrix = self.table.to_list()
+        label = self.display_matrix[row_index][col_index]
+        label.config(text=matrix[row_index][col_index])
 
-    ### HELPER METHODS ###
-
-    def formatAsCurrency(num: float) -> str:
+    # HELPER METHODS
+    def format_as_currency(num: float) -> str:
         # converts a number to a currency format
         if num >= 0:
             return '${:,.2f}'.format(num)
         else:
             return '-${:,.2f}'.format(-num)
 
-    def unformatAsCurrency(num: str) -> float:
+    def unformat_from_currency(num: str) -> float:
         # converts the currency format to a number
         try:
             if num[0] == "-":
@@ -261,61 +265,63 @@ class TableWidget(tkinter.Frame):
                 return -float(num)
             else:
                 return float(num)
-        except IndexError: #the string was probably empty
+        except IndexError:  # the string was probably empty
             return 0
 
-    def setFieldText(entry, text: str):
+    @staticmethod
+    def set_field_text(entry: tkinter.Entry, text: str):
         # sets a field's text to text
         entry.delete(0, tkinter.END)
         entry.insert(0, text)
 
-class linkedList():
+
+class LinkedList:
     # this class is used in the Table due to the table's nature of insertions of rows in the middle or swapping of rows
 
     def __init__(self, values: []):
-        # initializes a linkedlist with given values
+        # initializes a LinkedList with given values
         self.value = values[0]
-        nextValues = values[1:]
-        if len(nextValues) == 0:
-            self.nextNode = None
+        next_values = values[1:]
+        if len(next_values) == 0:
+            self.next_node = None
         else:
-            self.nextNode = linkedList(nextValues)
+            self.next_node = LinkedList(next_values)
 
-    def setNext(self, next):
-        # sets the nextNode to next
-        self.nextNode = next
+    def set_next(self, next_node):
+        # sets the next_node to next
+        self.next_node = next_node
 
-    def append(self, newNode):
-        # adds the newNode to the end of the linkedList
-        if self.nextNode == None:
-            self.setNext(newNode)
+    def append(self, new_node):
+        # adds the newNode to the end of the LinkedList
+        if self.next_node is None:
+            self.set_next(new_node)
         else:
-            self.nextNode.append(newNode)
+            self.next_node.append(new_node)
 
-    def getLength(self) -> int:
-        # returns the number of items in the linkedList
-        if self.nextNode == None:
+    def get_length(self) -> int:
+        # returns the number of items in the LinkedList
+        if self.next_node is None:
             return 1
         else:
-            return 1+self.nextNode.getLength()
+            return 1+self.next_node.get_length()
 
-    def setValue(self, value, index):
+    def set_value(self, value, index):
         # sets the value of the node at the given index to value
-        self.getNodeAt(index).value = value
+        self.get_node_at(index).value = value
 
-    def getNodeAt(self, index):
+    def get_node_at(self, index):
         # returns the Node at the given index
         if index == 0:
             return self
         else:
-            return self.nextNode.getNodeAt(index-1)
+            return self.next_node.get_node_at(index-1)
 
-    def toList(self) -> []:
-        # converts the linkedList to a list to be used as an iterable
-        list = []
+    def to_list(self) -> []:
+        # converts the LinkedList to a list to be used as an iterable
+        values = []
         node = self
-        while node.nextNode != None:
-            list.append(node.value)
-            node = node.nextNode
-        list.append(node.value)
-        return list
+        while node.next_node is not None:
+            values.append(node.value)
+            node = node.next_node
+        values.append(node.value)
+        return values

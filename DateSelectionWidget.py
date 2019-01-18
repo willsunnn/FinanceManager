@@ -4,89 +4,98 @@ import calendar
 import FinanceManagerModel
 import pathlib
 
-monthDict = {"January":1, "February":2, "March":3,
-                        "April":4, "May":5, "June":6,
-                        "July":7, "August":8, "September":9,
-                        "October":10, "November":11, "December":12}
+month_dict = {"January":  1, "February":    2, "March":     3,
+              "April":    4, "May":         5, "June":      6,
+              "July":     7, "August":      8, "September": 9,
+              "October": 10, "November":   11, "December": 12}
 present = datetime.datetime.now()
+default_fg = 'black'
+default_bg = 'white'
+default_year_entry_width = 5
 
-defaultfg = 'white'
-defaultbg = 'black'
 
-defaultYearEntryWidth = 5
-
-class DateSelectionListener():
-    def loadTableData(path: pathlib.Path):
+class DateSelectionListener:
+    def load_table_data(self, path: pathlib.Path):
         pass
+
 
 class DateSelectionWidget(tkinter.Frame):
     # Is a widget used to select a date for file selection
 
     def __init__(self, parent, **optional_arguments):
-        #initializes the frame and subframes
+        # initializes the frame and subframes
         tkinter.Frame.__init__(self, parent)
-        self.processOptionalArguments(optional_arguments)
-        self.setupMonthSelection()
-        self.setupYearSelection()
-        self.setupRetrieveButton()
+        self.listener = None
 
-    def processOptionalArguments(self, optional_arguments):
+        # set default parameters
+        self.fg_col = default_fg
+        self.bg_col = default_bg
+        self.process_optional_arguments(optional_arguments)
+
+        # setup the month selection dropdown menu
+        self.month_var = tkinter.StringVar(self)
+        self.month_select_menu = None
+        self.setup_month_selection()
+
+        # setup the year entry field
+        self.year_select = None
+        self.setup_year_selection()
+
+        # setup the retrieve button
+        self.retrieve_button = None
+        self.setup_retrieve_button()
+
+    def process_optional_arguments(self, optional_arguments):
         if 'fg' in optional_arguments:
-            self.fgcol = optional_arguments['fg']
-        else:
-            self.fgcol = defaultfg
-
+            self.fg_col = optional_arguments['fg']
         if 'bg' in optional_arguments:
-            self.bgcol = optional_arguments['bg']
-        else:
-            self.bgcol = defaultbg
+            self.bg_col = optional_arguments['bg']
 
-    def setupMonthSelection(self):
-        # create the month selection dropdown menu
-        self.monthVar = tkinter.StringVar(self)
-        self.monthVar.set(
-            calendar.month_name[present.month])  # gets current month (as int), and then sets the name of the month
-        self.monthSelect = tkinter.OptionMenu(self, self.monthVar,
-                                              *list(monthDict.keys()))  # sets the month and the options
-        self.monthSelect.config(foreground=self.fgcol, background=self.bgcol)
-        self.monthSelect.grid(row=0, column=0)
+    def setup_month_selection(self):
+        # gets current month (as int), and then sets the name of the month
+        self.month_var.set(calendar.month_name[present.month])
+        # create the month selection drop down menu
+        # sets the month and the options
+        self.month_select_menu = tkinter.OptionMenu(self, self.month_var, *list(month_dict.keys()))
+        self.month_select_menu.config(foreground=self.fg_col, background=self.bg_col)
+        self.month_select_menu.grid(row=0, column=0)
 
-    def setupYearSelection(self):
+    def setup_year_selection(self):
         # create the year selection
-        self.yearSelect = tkinter.Entry(self)
-        self.setYearEntryText(present.year)
-        self.yearSelect.config(width=defaultYearEntryWidth)
-        self.yearSelect.config(fg=self.fgcol, bg=self.bgcol)
-        self.yearSelect.grid(row=0, column=1)
+        self.year_select = tkinter.Entry(self)
+        self.set_year_entry_text(str(present.year))
+        self.year_select.config(width=default_year_entry_width)
+        self.year_select.config(fg=self.fg_col, bg=self.bg_col)
+        self.year_select.grid(row=0, column=1)
 
-    def setupRetrieveButton(self):
+    def setup_retrieve_button(self):
         # create the button to check and retrieve the dates
-        self.retrieveButton = tkinter.Button(self, text="retrieve", command=lambda: self.buttonSubmit(),
-                                             fg=self.fgcol, bg=self.bgcol)
-        self.retrieveButton.grid(row=0, column=2)
+        self.retrieve_button = tkinter.Button(self, text="retrieve", command=lambda: self.button_submit(),
+                                              fg=self.fg_col, bg=self.bg_col)
+        self.retrieve_button.grid(row=0, column=2)
 
-    def addListener(self, listener: DateSelectionListener):
-        # adds a listener that will execute the method loadTableData(pathlib.Path) when button is pressed
+    def add_listener(self, listener: DateSelectionListener):
+        # adds a listener that will execute the method load_table_data(pathlib.Path) when button is pressed
         self.listener = listener
 
-    def buttonSubmit(self):
-        if(self.checkDone()):
-            date = self.getDate()
-            fileName = FinanceManagerModel.FinanceManagerModel.formatDate(date['month'], date['year'])
-            databasePath = FinanceManagerModel.databaseFileLocations + fileName + ".db"
-            self.listener.loadTableData(pathlib.Path(databasePath))
+    def button_submit(self):
+        if self.check_done():
+            date = self.get_date()
+            file_name = FinanceManagerModel.FinanceManagerModel.format_date(date['month'], date['year'])
+            database_path = FinanceManagerModel.database_file_locations + file_name + FinanceManagerModel.database_ext
+            self.listener.load_table_data(pathlib.Path(database_path))
         else:
-            self.setYearEntryText("Enter a year")
+            self.set_year_entry_text("Enter a year")
 
-    def setYearEntryText(self, text: str):
-        self.yearSelect.delete(0, tkinter.END)
-        self.yearSelect.insert(0, text)
+    def set_year_entry_text(self, text: str):
+        self.year_select.delete(0, tkinter.END)
+        self.year_select.insert(0, text)
 
     # returns true if year is entered and an int
-    def checkDone(self) -> bool:
-        return self.yearSelect.get().isnumeric()
+    def check_done(self) -> bool:
+        return self.year_select.get().isnumeric()
 
     # returns a dictionary of the selected date
-    def getDate(self) -> {str:int}:
-        return {"month":monthDict[self.monthVar.get()], "year":int(self.yearSelect.get())}
+    def get_date(self) -> {str: int}:
+        return {"month": month_dict[self.month_var.get()], "year": int(self.year_select.get())}
 
