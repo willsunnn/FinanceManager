@@ -1,5 +1,6 @@
-import tkinter
 import pathlib
+import tkinter
+from tkinter.ttk import Separator
 from TableVisualizer import TableVisualizer
 from FileDisplay import FileDisplay
 from FileDisplay import FileDisplayListener
@@ -21,12 +22,18 @@ class FinanceManagerGUI(tkinter.Frame, FileDisplayListener, ModelUpdateListener,
         self.fd.set_listener(self)
         self.fd.grid(row=0, column=0)
 
+        separator1 = Separator(self, orient="vertical")
+        separator1.grid(row=0, column=1, sticky='ns')
+
         self.tv = TableVisualizer(self)
         self.tv.add_listener(self)
-        self.tv.grid(row=0, column=1)
+        self.tv.grid(row=0, column=2)
 
-        self.dv = DataVisualizer(self)
-        self.dv.grid(row=0, column=2)
+        separator2 = Separator(self, orient="vertical")
+        separator2.grid(row=0, column=3, sticky='ns')
+
+        self.dv = DataVisualizer(self, text="Data Visualizer")
+        self.dv.grid(row=0, column=4)
 
     def set_database_path(self, path: pathlib.Path):
         self.model = FinanceManagerModel(path)

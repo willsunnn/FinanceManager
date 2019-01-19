@@ -63,7 +63,7 @@ class BalanceWidget(tkinter.Frame):
         table_cell_width = [[default_first_col_width, default_first_col_width]] \
                            + [[default_field_col_width, default_field_col_width] for x in range(self.field_count)]
         # invert_axis is True because the data will be added in cols
-        self.balance_table = TableWidget(self, 2, self.field_count + 1, self.table_widget_name,
+        self.balance_table = TableWidget(self, 2, self.field_count + 1, table_name=self.table_widget_name,
                                          invert_axis=True, width_table=table_cell_width,
                                          additional_cell_width=default_field_col_width, head_font=self.head_font,
                                          entry_font=self.entry_font)

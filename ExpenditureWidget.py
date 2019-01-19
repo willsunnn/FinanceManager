@@ -59,8 +59,8 @@ class ExpenditureWidget(tkinter.Frame, TableEditListener):
         # adds the expenditure table
         table_cell_width = [default_field_col_widths] * (self.field_count + 1)
         # invert_axis is false because the data will be added in rows
-        self.expenditure_table = TableWidget(self, 3, self.field_count + 1, "expenditures", invert_axis=False,
-                                             width_table=table_cell_width, head_font=self.head_font,
+        self.expenditure_table = TableWidget(self, 3, self.field_count + 1, table_name="expenditures",
+                                             invert_axis=False, width_table=table_cell_width, head_font=self.head_font,
                                              entry_font=self.entry_font)
         self.expenditure_table.add_listener(self)
         header_values = ['Amount', 'Name', 'Type']

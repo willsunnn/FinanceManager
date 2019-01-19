@@ -14,10 +14,9 @@ class TableEditListener:
 class TableWidget(tkinter.Frame):
     # is a widget that controls a matrix of labels and manages their changes
 
-    def __init__(self, parent, col_size, default_row_size, table_name, **optional_arguments):
+    def __init__(self, parent, col_size, default_row_size, **optional_arguments):
         # initializes the frame and its sub-frames
         tkinter.Frame.__init__(self, parent)
-        self.table_name = table_name
         self.listener: TableEditListener = None
         self.col_size = col_size              # col size should remain constant (unless invert_axis)
         self.row_size = default_row_size      # rows can be inserted, hence the use of a LinkedList
@@ -33,6 +32,7 @@ class TableWidget(tkinter.Frame):
         self.entry_font = None
         self.editable = False
         self.entry_fields = None
+        self.table_name = None
         self.entry_justify = default_entry_justify
         self.head_justify = default_header_justify
         if not self.invert_axis:
@@ -76,6 +76,9 @@ class TableWidget(tkinter.Frame):
         if 'entry_font' in optional_arguments:
             self.entry_font = optional_arguments['entry_font']
 
+        if 'table_name' in optional_arguments:
+            self.table_name = optional_arguments['table_name']
+
         # sets the table's header and entry justify constraints
         if 'head_justify' in optional_arguments:
             self.head_justify = optional_arguments['head_justify']
@@ -100,6 +103,10 @@ class TableWidget(tkinter.Frame):
         # sets the texts in the labels at the given row
         for value_index in range(len(values)):
             self.set_value(values[value_index], row_index, value_index)
+
+    def clear_labels(self):
+        for row_index in range(1, self.row_size):
+            self.set_row_values(["-"]*self.col_size, row_index)
 
     def increase_matrix(self, new_row_num):
         og_size = self.table.get_length()
