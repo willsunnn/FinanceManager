@@ -1,18 +1,17 @@
 import tkinter
 import matplotlib
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.figure import Figure
-from FinanceManagerModel import FinanceManagerModel
 from TableWidget import TableWidget
+from PieChart import PieChart
+import FinanceManagerModel
 
 matplotlib.use('TkAgg')
 default_field_count = 2
+row_cell_width = [0, 7]     # if width is 0, label expands to show text
 
 
 class DataVisualizer(tkinter.Frame):
     def __init__(self, parent, **optional_arguments):
         tkinter.Frame.__init__(self, parent)
-        self.database = None
 
         # setup default parameters and then process optional arguments
         self.field_count = default_field_count
@@ -31,34 +30,18 @@ class DataVisualizer(tkinter.Frame):
             self.field_count = optional_arguments['field_count']
 
     def load_spending_by_category(self):
-        self.category_table = TableWidget(self, 2, self.field_count + 1)
+        table_cell_width = [row_cell_width] * (self.field_count + 1)
+        self.category_table = TableWidget(self, 2, self.field_count + 1, "spending by category",
+                                          width_table=table_cell_width)
         header_values = ['Type', 'Amount']
         self.category_table.set_row_values(header_values, 0)
         self.category_table.grid(row=0)
 
-    def load_table_data(self, model: FinanceManagerModel):
-        self.database = model
-        data = self.database.fetch_expenditures_by_type()
+    def load_table_data(self, expenditures_by_type: [[]]):
         labels = []
         values = []
-        for row_index in range(len(data)):
-            labels.append(data[row_index][0])
-            values.append(data[row_index][1])
-            self.category_table.set_row_values([labels[row_index], values[row_index]], row_index+1)
+        for row_index in range(len(expenditures_by_type)):
+            labels.append(expenditures_by_type[row_index][0])
+            values.append(expenditures_by_type[row_index][1])
+            self.category_table.set_row_values([labels[row_index], TableWidget.format_as_currency(values[row_index])], row_index+1)
         self.pie_chart.construct_pie_chart(labels, values)
-
-
-class PieChart(tkinter.Frame):
-    def __init__(self, parent):
-        tkinter.Frame.__init__(self, parent)
-        self.chartWidget = None
-
-    def construct_pie_chart(self, labels, values):
-        if self.chartWidget is not None:
-            self.chartWidget.grid_remove()
-        fig = Figure(figsize=(2,2))
-        a = fig.add_subplot(111)
-        a.pie(values, labels=labels)
-        canvas = FigureCanvasTkAgg(fig, master=self)
-        self.chartWidget = canvas.get_tk_widget()
-        self.chartWidget.grid(row=0, column=0)

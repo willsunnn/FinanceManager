@@ -15,7 +15,7 @@ default_year_entry_width = 5
 
 
 class DateSelectionListener:
-    def load_table_data(self, path: pathlib.Path):
+    def push_path_to_container_GUI(self, path: pathlib.Path):
         pass
 
 
@@ -25,7 +25,7 @@ class DateSelectionWidget(tkinter.Frame):
     def __init__(self, parent, **optional_arguments):
         # initializes the frame and subframes
         tkinter.Frame.__init__(self, parent)
-        self.listener = None
+        self.listener: DateSelectionListener = None
 
         # set default parameters
         self.fg_col = default_fg
@@ -83,7 +83,7 @@ class DateSelectionWidget(tkinter.Frame):
             date = self.get_date()
             file_name = FinanceManagerModel.FinanceManagerModel.format_date(date['month'], date['year'])
             database_path = FinanceManagerModel.database_file_locations + file_name + FinanceManagerModel.database_ext
-            self.listener.load_table_data(pathlib.Path(database_path))
+            self.listener.push_path_to_container_GUI(pathlib.Path(database_path))
         else:
             self.set_year_entry_text("Enter a year")
 

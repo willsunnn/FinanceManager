@@ -1,4 +1,3 @@
-import tkinter
 from FinanceManagerModel import *
 from TableWidget import *
 

@@ -5,8 +5,8 @@ database_file_locations = "finances/"
 database_ext = ".db"
 
 
-class ToDatabaseListener:
-    def send_values_to_database(self, table_name: str, row_index: int, values):
+class ModelUpdateListener:
+    def data_updated(self):
         pass
 
 
@@ -15,6 +15,7 @@ class FinanceManagerModel:
 
     def __init__(self, path: Path):
         # constructs or opens the database associated with the given file path
+        self.update_listener: ModelUpdateListener = None
         self.db = None
         self.path = path
         if not self.path.is_file():  # if the path is a new file
@@ -24,6 +25,13 @@ class FinanceManagerModel:
             self.construct_tables()
         else:  # access the database files if file already existed
             self.access_tables()
+
+    def add_listener(self, listener: ModelUpdateListener):
+        self.update_listener = listener
+        self.data_updated()
+
+    def data_updated(self):
+        self.update_listener.data_updated()
 
     def construct_tables(self):
         # creates new tables
@@ -64,14 +72,21 @@ class FinanceManagerModel:
         # adds an expenditure to the expenditures table
         self.db.execute("INSERT INTO expenditures (amount, name, type) VALUES((?), (?), (?) );", [amount, name, category])
         self.db.commit()
+        self.data_updated()
 
     def update_expenditure_values(self, primary_user_key: int, values):
-        # updates the values of the primaryUserKey in expenditure_table
+        # updates the values of the primary_user_key in expenditure_table
         self.update_table_values('expenditures', primary_user_key, values)
 
     def fetch_expenditures_by_type(self):
         # returns a matrix containing the expenditure by type
         return self.db.execute("SELECT type, SUM(amount) FROM expenditures GROUP BY type;").fetchall()
+
+    def fetch_databases(self):
+        databases = {'initial balances': self.fetch_initial_balances(),
+                     'current balances': self.fetch_current_balances(),
+                     'expenditures': self.fetch_expenditures()}
+        return databases
 
     def fetch_expenditures(self):
         # returns the matrix containing all the data points of the database in expenditures
@@ -88,13 +103,14 @@ class FinanceManagerModel:
     ### HELPER METHODS ###
 
     def update_table_values(self, table_name: str, primary_user_key: int, values):
-        # updates the values of the data with the primaryUserKey with the given values
+        # updates the values of the data with the primary_user_key with the given values
         for key in values.keys():
             self.db.execute( '''UPDATE {} 
                                 SET {} = (?) 
                                 WHERE 
                                     id = (?)'''.format(table_name, key), [values[key], primary_user_key])
         self.db.commit()
+        self.data_updated()
 
     def set_balances(self, balance_dict: {str: float}, is_initial: bool):
         # takes a dictionary with key balanceName, and value amount
@@ -107,11 +123,13 @@ class FinanceManagerModel:
         for balanceName, value in balance_dict.items():      #add the new table values
             self.db.execute("INSERT INTO {} (source, amount) VALUES((?), (?));".format(table_name), [balanceName, value])
             self.db.commit()
+        self.data_updated()
 
     def clear_table(self, table_name: str):
         # clears the table with the name tableName
         self.db.execute("DELETE FROM {};".format(table_name))
         self.db.commit()
+        self.data_updated()
 
     @staticmethod
     def format_date(month: int, year: int):

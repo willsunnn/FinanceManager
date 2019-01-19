@@ -1,20 +1,19 @@
 import tkinter
 from BalanceWidget import BalanceWidget
 from ExpenditureWidget import ExpenditureWidget
-from FinanceManagerModel import FinanceManagerModel
-from FinanceManagerModel import ToDatabaseListener
+from TableWidget import TableEditListener
 
 defaultbg = 'black'
 defaultfg = 'white'
 
 
-class TableVisualizer(tkinter.Frame, ToDatabaseListener):
+class TableVisualizer(tkinter.Frame, TableEditListener):
     # is a widget that contains the 3 tables for the basic data
 
     def __init__(self, parent):
         # initializes the frame and its sub-frames
         tkinter.Frame.__init__(self, parent)
-        self.database: FinanceManagerModel = None
+        self.table_edit_listener: TableEditListener = None
 
         # create an initial balance table
         self.initialBalance = BalanceWidget(self, name='Initial Balance')
@@ -29,18 +28,14 @@ class TableVisualizer(tkinter.Frame, ToDatabaseListener):
         self.currentBalance = BalanceWidget(self, name='Current Balance')
         self.currentBalance.grid(row=2, column=0)
 
-    def load_table_data(self, model: FinanceManagerModel):
-        # links the table to a DatabaseManager and updates the table widgets accordingly
-        self.database = model
-        self.initialBalance.set_balances(self.database.fetch_initial_balances())
-        self.currentBalance.set_balances(self.database.fetch_current_balances())
-        self.expenditures.setExpenditures(self.database.fetch_expenditures())
+    def add_listener(self, listener: TableEditListener):
+        self.table_edit_listener = listener
 
-    def send_values_to_database(self, table_name: str, row_index: int, values):
-        # sends the new data from the modified table widgets to the DatabaseManager
-        if table_name == 'expenditures':
-            try:
-                primaryUserKey = self.database.fetch_expenditures()[row_index][0]
-                self.database.update_expenditure_values(primaryUserKey, values)
-            except IndexError:  #This means the database was empty there
-                self.database.add_expenditure(values['amount'], values['name'], values['type'])
+    def load_table_data(self, databases: {str: [[]]}):
+        # links the table to a DatabaseManager and updates the table widgets accordingly
+        self.initialBalance.set_balances(databases['initial balances'])
+        self.currentBalance.set_balances(databases['current balances'])
+        self.expenditures.set_expenditures(databases['expenditures'])
+
+    def send_edit_to_database(self, table_name: str, row_index: int, values):
+        self.table_edit_listener.send_edit_to_database(table_name, row_index, values)

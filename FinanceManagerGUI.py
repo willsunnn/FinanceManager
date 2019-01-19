@@ -5,30 +5,45 @@ from FileDisplay import FileDisplay
 from FileDisplay import FileDisplayListener
 from DataVisualizer import DataVisualizer
 from FinanceManagerModel import FinanceManagerModel
+from FinanceManagerModel import ModelUpdateListener
+from TableVisualizer import TableEditListener
 
 
-class FinanceManagerGUI(tkinter.Frame, FileDisplayListener):
+class FinanceManagerGUI(tkinter.Frame, FileDisplayListener, ModelUpdateListener, TableEditListener):
     # is the overall widget that runs the entire application
 
     def __init__(self, parent):
         # initializes this frame and its subframes
         tkinter.Frame.__init__(self, parent)
+        self.model: FinanceManagerModel = None
 
         self.fd = FileDisplay(self)
         self.fd.set_listener(self)
         self.fd.grid(row=0, column=0)
 
         self.tv = TableVisualizer(self)
+        self.tv.add_listener(self)
         self.tv.grid(row=0, column=1)
 
         self.dv = DataVisualizer(self)
         self.dv.grid(row=0, column=2)
 
-    def load_table_data(self, path: pathlib.Path):
-        # called by the FileDisplay to tell the TableVisualizer and DataVisualizer which database file to access
-        model = FinanceManagerModel(path)
-        self.tv.load_table_data(model)
-        self.dv.load_table_data(model)
+    def set_database_path(self, path: pathlib.Path):
+        self.model = FinanceManagerModel(path)
+        self.model.add_listener(self)
+
+    def data_updated(self):
+        self.tv.load_table_data(self.model.fetch_databases())
+        self.dv.load_table_data(self.model.fetch_expenditures_by_type())
+
+    def send_edit_to_database(self, table_name: str, row_index: int, values):
+        # sends the new data from the modified table widgets to the DatabaseManager
+        if table_name == 'expenditures':
+            try:
+                primary_user_key = self.model.fetch_expenditures()[row_index][0]
+                self.model.update_expenditure_values(primary_user_key, values)
+            except IndexError:          # This means the database was empty at that row index
+                self.model.add_expenditure(values['amount'], values['name'], values['type'])
 
     @staticmethod
     def run():

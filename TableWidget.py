@@ -6,16 +6,23 @@ default_entry_justify = 'left'
 direction_to_compass = {'center': 'center', 'left': 'w', "right": 'e'}
 
 
+class TableEditListener:
+    def send_edit_to_database(self, table_name: str, row_index: int, values):
+        pass
+
+
 class TableWidget(tkinter.Frame):
     # is a widget that controls a matrix of labels and manages their changes
 
-    def __init__(self, parent, col_size, default_row_size, **optional_arguments):
+    def __init__(self, parent, col_size, default_row_size, table_name, **optional_arguments):
         # initializes the frame and its sub-frames
         tkinter.Frame.__init__(self, parent)
-        self.listener = None
+        self.table_name = table_name
+        self.listener: TableEditListener = None
         self.col_size = col_size              # col size should remain constant (unless invert_axis)
         self.row_size = default_row_size      # rows can be inserted, hence the use of a LinkedList
         self.table = LinkedList([[None for i in range(self.col_size)] for j in range(self.row_size)])
+        self.display_matrix = None
         self.edit_buttons = None
 
         # setting up and processing additional arguments
@@ -39,7 +46,7 @@ class TableWidget(tkinter.Frame):
         # set up the labels of the table widget
         self.add_labels()
 
-    def add_listener(self, listener):
+    def add_listener(self, listener: TableEditListener):
         self.listener = listener
 
     def process_optional_arguments(self, optional_arguments):
@@ -152,10 +159,10 @@ class TableWidget(tkinter.Frame):
 
             # set the label width
             try:
-                if self.width_table[row_index][col_index] is None:  # if a null value was given
-                    label.config(width=self.cell_width)
-                else:  # if a value was given
+                if self.width_table[row_index][col_index] is not None:  # if a value was given
                     label.config(width=self.width_table[row_index][col_index])
+                else:                                                   # if a null value was given
+                    label.config(width=self.cell_width)
             except:  # if a table wasn't given or if the table was expanded and the value is out of bounds
                 label.config(width=self.cell_width)
 
@@ -229,11 +236,11 @@ class TableWidget(tkinter.Frame):
                 label.grid(row=col_index, column=row_index)
             else:
                 label.grid(row=row_index, column=col_index)
-        self.send_values_to_database(row_index-1, values)
+        self.send_edit_to_database(row_index-1, values)
 
-    def send_values_to_database(self, row_index, values):
+    def send_edit_to_database(self, row_index, values):
         # sends the new data from the row to the database to be stored
-        self.listener.send_values_to_database(row_index, values)
+        self.listener.send_edit_to_database(self.table_name, row_index, values)
 
     def update_label_text(self, row_index, col_index):
         # updates the text of a label at the given position

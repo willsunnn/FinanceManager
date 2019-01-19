@@ -11,7 +11,7 @@ else:
 
 
 class FileDisplayListener:
-    def load_table_data(self, path: pathlib.Path):
+    def set_database_path(self, path: pathlib.Path):
         pass
 
 
@@ -21,7 +21,8 @@ class FileDisplay(tkinter.Frame, DateSelectionListener):
     def __init__(self, parent):
         # initializes the frame and its subframes
         tkinter.Frame.__init__(self, parent)
-        self.listener: FileDisplayListener = None
+        self.file_display_listener: FileDisplayListener = None
+        self.file_display_listener = None
 
         self.date_selector: DateSelectionWidget = None
         self.buttons: [tkinter.Button] = None
@@ -45,17 +46,17 @@ class FileDisplay(tkinter.Frame, DateSelectionListener):
             self.buttons = []
         paths = sorted(FileDisplay.get_paths(root_path))
         for path in paths:
-            button = tkinter.Button(self, text=path.name, command=lambda p=path: self.load_table_data(p))
+            button = tkinter.Button(self, text=path.name, command=lambda p=path: self.push_path_to_container_GUI(p))
             button.pack()
             self.buttons.append(button)
 
     def set_listener(self, listener: FileDisplayListener):
-        self.listener = listener
+        self.file_display_listener = listener
 
-    def load_table_data(self, path: pathlib.Path):
+    def push_path_to_container_GUI(self, path: pathlib.Path):
         # tells the parent to retrieve the data from the specified path and to appropriately process it
         # then reloads the file list in case new files were created upon button press
-        self.listener.load_table_data(path)
+        self.file_display_listener.set_database_path(path)
         self.load_file_list()
 
     @staticmethod
