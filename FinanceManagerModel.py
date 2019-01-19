@@ -100,7 +100,7 @@ class FinanceManagerModel:
         # returns the matrix containing all the data points of the database in currentBalances
         return self.db.execute("SELECT * FROM currentBalances").fetchall()
 
-    ### HELPER METHODS ###
+    # HELPER METHODS
 
     def update_table_values(self, table_name: str, primary_user_key: int, values):
         # updates the values of the data with the primary_user_key with the given values
@@ -115,12 +115,12 @@ class FinanceManagerModel:
     def set_balances(self, balance_dict: {str: float}, is_initial: bool):
         # takes a dictionary with key balanceName, and value amount
         # sets the table of balances in sql file to reflect balanceDict
-        if is_initial:                                       #choose the table to edit
+        if is_initial:                                       # choose the table to edit
             table_name = "initialBalances"
         else:
             table_name = "currentBalances"
-        self.clear_table(table_name)                          #clear the table values
-        for balanceName, value in balance_dict.items():      #add the new table values
+        self.clear_table(table_name)                         # clear the table values
+        for balanceName, value in balance_dict.items():      # add the new table values
             self.db.execute("INSERT INTO {} (source, amount) VALUES((?), (?));".format(table_name), [balanceName, value])
             self.db.commit()
         self.data_updated()
@@ -131,14 +131,7 @@ class FinanceManagerModel:
         self.db.commit()
         self.data_updated()
 
-    @staticmethod
-    def format_date(month: int, year: int):
-        # returns the date formatted as YYYY-MM so it's chronological when sorted alphabetically
-        if month < 10:  # if month is single digit
-            month = "0{}".format(month)
-        return "{}-{}".format(year, month)
-
-    ### METHODS THAT WERE USED DURING TESTING ###
+    # METHODS THAT WERE USED DURING TESTING
 
     def clear_database(self):
         # clears all the databases
@@ -155,7 +148,7 @@ class FinanceManagerModel:
     # prints the table of expenditures using String formatting
     def print_expenditure_table(self):
         string_format = "{:10} | {:30} | {:10}"
-        print(string_format.format("amount","name","type"))
+        print(string_format.format("amount", "name", "type"))
         for row in self.fetch_expenditures():
-            print(string_format.format(row[1],row[2],row[3]))
+            print(string_format.format(row[1], row[2], row[3]))
 

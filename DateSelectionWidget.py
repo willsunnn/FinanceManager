@@ -22,34 +22,47 @@ class DateSelectionListener:
 class DateSelectionWidget(tkinter.Frame):
     # Is a widget used to select a date for file selection
 
-    def __init__(self, parent, **optional_arguments):
-        # initializes the frame and subframes
+    def __init__(self, parent):
+        # initializes the frame and sub frames
         tkinter.Frame.__init__(self, parent)
         self.listener: DateSelectionListener = None
+        self.colors = None
 
-        # set default parameters
-        self.fg_col = default_fg
-        self.bg_col = default_bg
-        self.process_optional_arguments(optional_arguments)
-
-        # setup the month selection dropdown menu
+        # setup the month selection drop down menu
         self.month_var = tkinter.StringVar(self)
-        self.month_select_menu = None
+        self.month_select_menu: tkinter.OptionMenu = None
         self.setup_month_selection()
 
         # setup the year entry field
-        self.year_select = None
+        self.year_select: tkinter.Entry = None
         self.setup_year_selection()
 
         # setup the retrieve button
         self.retrieve_button = None
         self.setup_retrieve_button()
 
-    def process_optional_arguments(self, optional_arguments):
-        if 'fg' in optional_arguments:
-            self.fg_col = optional_arguments['fg']
-        if 'bg' in optional_arguments:
-            self.bg_col = optional_arguments['bg']
+    def set_colors(self, color_dict: {str: str}):
+        self.colors = color_dict
+        self.update_colors()
+
+    def update_colors(self):
+        if self.colors is not None:
+            self.config(bg=self.colors['bg_col'])
+            button_colors = self.colors['button_colors']
+            self.retrieve_button.config(fg=button_colors['button_fg_col'],
+                                        highlightbackground=button_colors['button_bg_col'],
+                                        activeforeground=button_colors['button_pressed_fg'],
+                                        activebackground=button_colors['button_pressed_bg'])
+
+            drop_down_colors = self.colors['drop_down_colors']
+            self.month_select_menu['menu'].config(bg=drop_down_colors['bg'], foreground=drop_down_colors['text'],
+                                                  activebackground=drop_down_colors['highlighted_color'],
+                                                  activeforeground=drop_down_colors['text'],)
+            self.month_select_menu.config(bg=drop_down_colors['bg'], fg=drop_down_colors['text'],
+                                          highlightbackground=drop_down_colors['bg'])
+
+            entry_colors = self.colors['entry_colors']
+            self.year_select.config(bg=entry_colors['bg'], fg=entry_colors['text'], highlightthickness=0)
 
     def setup_month_selection(self):
         # gets current month (as int), and then sets the name of the month
@@ -57,21 +70,19 @@ class DateSelectionWidget(tkinter.Frame):
         # create the month selection drop down menu
         # sets the month and the options
         self.month_select_menu = tkinter.OptionMenu(self, self.month_var, *list(month_dict.keys()))
-        self.month_select_menu.config(foreground=self.fg_col, background=self.bg_col)
         self.month_select_menu.grid(row=0, column=0)
+        print(self.month_select_menu['menu'].config().keys())
 
     def setup_year_selection(self):
         # create the year selection
         self.year_select = tkinter.Entry(self)
         self.set_year_entry_text(str(present.year))
         self.year_select.config(width=default_year_entry_width)
-        self.year_select.config(fg=self.fg_col, bg=self.bg_col)
         self.year_select.grid(row=0, column=1)
 
     def setup_retrieve_button(self):
         # create the button to check and retrieve the dates
-        self.retrieve_button = tkinter.Button(self, text="retrieve", command=lambda: self.button_submit(),
-                                              fg=self.fg_col, bg=self.bg_col)
+        self.retrieve_button = tkinter.Button(self, text="retrieve", command=lambda: self.button_submit())
         self.retrieve_button.grid(row=0, column=2)
 
     def add_listener(self, listener: DateSelectionListener):
@@ -81,7 +92,7 @@ class DateSelectionWidget(tkinter.Frame):
     def button_submit(self):
         if self.check_done():
             date = self.get_date()
-            file_name = FinanceManagerModel.FinanceManagerModel.format_date(date['month'], date['year'])
+            file_name = DateSelectionWidget.format_date(date['month'], date['year'])
             database_path = FinanceManagerModel.database_file_locations + file_name + FinanceManagerModel.database_ext
             self.listener.push_path_to_container_GUI(pathlib.Path(database_path))
         else:
@@ -99,3 +110,15 @@ class DateSelectionWidget(tkinter.Frame):
     def get_date(self) -> {str: int}:
         return {"month": month_dict[self.month_var.get()], "year": int(self.year_select.get())}
 
+    @staticmethod
+    def format_date(month: int, year: int) -> str:
+        # returns the date formatted as YYYY-MM so it's chronological when sorted alphabetically
+        if month < 10:  # if month is single digit
+            month = "0{}".format(month)
+        return "{}-{}".format(year, month)
+
+    @staticmethod
+    def unformat_date(name: str) -> {str: int}:
+        year = name[0: name.index('-')]
+        month = name[name.index('-')+1:]
+        return {'month': month, 'year': year}

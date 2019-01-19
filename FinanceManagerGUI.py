@@ -8,19 +8,22 @@ from DataVisualizer import DataVisualizer
 from FinanceManagerModel import FinanceManagerModel
 from FinanceManagerModel import ModelUpdateListener
 from TableVisualizer import TableEditListener
+from ColorManager import ColorManager
+from ColorManager import ColorThemes
 
 
 class FinanceManagerGUI(tkinter.Frame, FileDisplayListener, ModelUpdateListener, TableEditListener):
     # is the overall widget that runs the entire application
 
-    def __init__(self, parent):
-        # initializes this frame and its subframes
+    def __init__(self, parent, theme_name: str):
+        # initializes this frame and its sub frames
         tkinter.Frame.__init__(self, parent)
         self.model: FinanceManagerModel = None
+        self.color_manager: ColorManager = None
 
         self.fd = FileDisplay(self)
         self.fd.set_listener(self)
-        self.fd.grid(row=0, column=0)
+        self.fd.grid(row=0, column=0, sticky=tkinter.NS)
 
         separator1 = Separator(self, orient="vertical")
         separator1.grid(row=0, column=1, sticky='ns')
@@ -34,6 +37,11 @@ class FinanceManagerGUI(tkinter.Frame, FileDisplayListener, ModelUpdateListener,
 
         self.dv = DataVisualizer(self, text="Data Visualizer")
         self.dv.grid(row=0, column=4)
+
+        if theme_name == "default":
+            self.set_color_manager(ColorManager(ColorThemes.default_theme))
+        elif theme_name == "dark":
+            self.set_color_manager(ColorManager(ColorThemes.dark_theme))
 
     def set_database_path(self, path: pathlib.Path):
         self.model = FinanceManagerModel(path)
@@ -52,11 +60,19 @@ class FinanceManagerGUI(tkinter.Frame, FileDisplayListener, ModelUpdateListener,
             except IndexError:          # This means the database was empty at that row index
                 self.model.add_expenditure(values['amount'], values['name'], values['type'])
 
+    def set_color_manager(self, color_manager: ColorManager):
+        self.color_manager = color_manager
+        self.update_colors()
+
+    def update_colors(self):
+        print("UPDATE COLORS IN FINANCE MANAGER GUI NOT DONE")
+        self.fd.set_colors(self.color_manager.get_file_display_colors())
+
     @staticmethod
     def run():
         # the main method used to run the application
         tk = tkinter.Tk()
-        gui = FinanceManagerGUI(tk)
+        gui = FinanceManagerGUI(tk, "dark")
         tk.title("Finance Manager")
         gui.pack()
         tk.mainloop()
