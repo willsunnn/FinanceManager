@@ -5,6 +5,7 @@ from matplotlib.figure import Figure
 matplotlib.use('TkAgg')
 
 default_figure_dimensions = (3, 3)
+default_text_color = 'Black'
 default_explode_size = 0.05
 
 
@@ -13,7 +14,7 @@ class PieChart(tkinter.LabelFrame):
         tkinter.LabelFrame.__init__(self, parent, text="Spending By Category - Pie Chart")
         self.chart_widget = None
         self.colors = None
-        self.label_text_col = None
+        self.label_text_col = default_text_color
         self.fig: Figure = None
         self.pie_axes: matplotlib.axes = None
         self.chart_is_empty = True
@@ -32,14 +33,17 @@ class PieChart(tkinter.LabelFrame):
             colors = None
         if len(values) == 1:
             _, texts = self.pie_axes.pie(values, labels=labels, explode=explode, colors=colors)
+            autotexts = None
         else:
-            _, texts, _ = self.pie_axes.pie(values, labels=labels, explode=explode, colors=colors, autopct='%1.1f%%')
+            _, texts, autotexts = self.pie_axes.pie(values, labels=labels, explode=explode, colors=colors, autopct='%1.1f%%')
 
-        print(optional_args)
         if 'text_col' in optional_args:
             for text in texts:
-                print(optional_args['text_col'])
                 text.set_color(optional_args['text_col'])
+
+            if autotexts is not None:
+                for text in autotexts:
+                    text.set_color(optional_args['text_col'])
 
         self.chart_is_empty = False
 
