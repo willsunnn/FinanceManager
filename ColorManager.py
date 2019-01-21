@@ -21,8 +21,8 @@ class ColorManager:
                                   "8", "9", "A", "B", "C", "D", "E", "F"]
 
         return "#{}{}{}{}{}{}".format(decimal_to_hexadecimal[int(red/16)],   decimal_to_hexadecimal[red % 16],
-                                      decimal_to_hexadecimal[int(blue/16)],  decimal_to_hexadecimal[blue % 16],
-                                      decimal_to_hexadecimal[int(green/16)], decimal_to_hexadecimal[green % 16])
+                                      decimal_to_hexadecimal[int(green/16)],  decimal_to_hexadecimal[green % 16],
+                                      decimal_to_hexadecimal[int(blue/16)], decimal_to_hexadecimal[blue % 16])
 
     @staticmethod
     # returns num within the specified number range
@@ -71,12 +71,11 @@ class ColorTheme:
                                     }
         self.table_visualizer_colors = {}
         self.data_visualizer_colors = {'bg_col': self.bg_col,
-
                                        'pie_chart_colors':
                                            {
                                                'bg_col': self.bg_col,
                                                'text_col': self.text_col,
-                                               'chart_col': self.highlight_col
+                                               'chart_default_col': self.highlight_col
                                            }
 
                                        }
@@ -89,7 +88,7 @@ class ColorTheme:
         dark_bg_col = ColorManager.rgb_to_hex(40, 40, 40)
         dark_bg_col2 = ColorManager.rgb_to_hex(50, 50, 50)
         dark_text_col = ColorManager.rgb_to_hex(255, 255, 255)
-        dark_highlight_col = ColorManager.rgb_to_hex(120, 120, 120)
+        dark_highlight_col = ColorManager.rgb_to_hex(190, 190, 190)
         return ColorTheme(dark_bg_col, dark_text_col, dark_highlight_col, bg_col2=dark_bg_col2).theme
 
     @staticmethod

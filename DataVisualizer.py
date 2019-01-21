@@ -49,10 +49,11 @@ class DataVisualizer(tkinter.LabelFrame):
                 labels.append(expenditures_by_type[row_index][0])
                 values.append(expenditures_by_type[row_index][1])
                 self.category_table.set_row_values([labels[row_index], TableWidget.format_as_currency(values[row_index])], row_index+1)
-            self.pie_chart.construct_pie_chart(labels, values)
+            self.pie_chart.construct_pie_chart(labels, values, text_col=self.pie_chart.label_text_col)
         else:
             self.category_table.clear_labels()
             self.pie_chart.construct_empty_chart()
+        self.pie_chart.update_colors()
 
     def set_colors(self, color_dict: {str: str}):
         self.colors = color_dict
@@ -60,5 +61,4 @@ class DataVisualizer(tkinter.LabelFrame):
 
     def update_colors(self):
         if self.colors is not None:
-            print('DataVisualizer update_colors not done')
             self.pie_chart.set_colors(self.colors['pie_chart_colors'])
