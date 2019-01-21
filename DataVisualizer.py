@@ -11,6 +11,7 @@ row_cell_width = [0, 7]     # if width is 0, label expands to show text
 class DataVisualizer(tkinter.LabelFrame):
     def __init__(self, parent, **optional_arguments):
         tkinter.LabelFrame.__init__(self, parent, text=optional_arguments['text'])
+        self.colors = None
 
         # setup default parameters and then process optional arguments
         self.field_count = default_field_count
@@ -52,3 +53,12 @@ class DataVisualizer(tkinter.LabelFrame):
         else:
             self.category_table.clear_labels()
             self.pie_chart.construct_empty_chart()
+
+    def set_colors(self, color_dict: {str: str}):
+        self.colors = color_dict
+        self.update_colors()
+
+    def update_colors(self):
+        if self.colors is not None:
+            print('DataVisualizer update_colors not done')
+            self.pie_chart.set_colors(self.colors['pie_chart_colors'])

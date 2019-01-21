@@ -76,11 +76,10 @@ class FileDisplay(tkinter.Frame, DateSelectionListener):
         if self.colors is not None:
             self.config(bg=self.colors['bg_col'])
             button_colors = self.colors['button_colors']
-            print(button_colors)
             for button in self.buttons:
-                button.config(fg=button_colors['button_fg_col'],
+                button.config(fg=button_colors['button_text_col'],
                               highlightbackground=button_colors['button_bg_col'],
-                              activeforeground=button_colors['button_pressed_fg'],
+                              activeforeground=button_colors['button_pressed_text'],
                               activebackground=button_colors['button_pressed_bg'])
             self.date_selector.set_colors(self.colors['date_selection_colors'])
 

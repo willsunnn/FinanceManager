@@ -49,20 +49,21 @@ class DateSelectionWidget(tkinter.Frame):
         if self.colors is not None:
             self.config(bg=self.colors['bg_col'])
             button_colors = self.colors['button_colors']
-            self.retrieve_button.config(fg=button_colors['button_fg_col'],
+            self.retrieve_button.config(fg=button_colors['button_text_col'],
                                         highlightbackground=button_colors['button_bg_col'],
-                                        activeforeground=button_colors['button_pressed_fg'],
+                                        activeforeground=button_colors['button_pressed_text'],
                                         activebackground=button_colors['button_pressed_bg'])
 
             drop_down_colors = self.colors['drop_down_colors']
-            self.month_select_menu['menu'].config(bg=drop_down_colors['bg'], foreground=drop_down_colors['text'],
+            self.month_select_menu['menu'].config(bg=drop_down_colors['bg_col'], foreground=drop_down_colors['text'],
                                                   activebackground=drop_down_colors['highlighted_color'],
                                                   activeforeground=drop_down_colors['text'],)
-            self.month_select_menu.config(bg=drop_down_colors['bg'], fg=drop_down_colors['text'],
-                                          highlightbackground=drop_down_colors['bg'])
+            self.month_select_menu.config(bg=drop_down_colors['bg_col'], fg=drop_down_colors['text'],
+                                          highlightbackground=drop_down_colors['bg_col'])
 
             entry_colors = self.colors['entry_colors']
-            self.year_select.config(bg=entry_colors['bg'], fg=entry_colors['text'], highlightthickness=0)
+            self.year_select.config(bg=entry_colors['bg_col'], fg=entry_colors['text'],
+                                    insertbackground=entry_colors['cursor'], highlightthickness=0)
 
     def setup_month_selection(self):
         # gets current month (as int), and then sets the name of the month
@@ -71,7 +72,6 @@ class DateSelectionWidget(tkinter.Frame):
         # sets the month and the options
         self.month_select_menu = tkinter.OptionMenu(self, self.month_var, *list(month_dict.keys()))
         self.month_select_menu.grid(row=0, column=0)
-        print(self.month_select_menu['menu'].config().keys())
 
     def setup_year_selection(self):
         # create the year selection

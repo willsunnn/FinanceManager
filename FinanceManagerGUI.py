@@ -9,7 +9,7 @@ from FinanceManagerModel import FinanceManagerModel
 from FinanceManagerModel import ModelUpdateListener
 from TableVisualizer import TableEditListener
 from ColorManager import ColorManager
-from ColorManager import ColorThemes
+from ColorManager import ColorTheme
 
 
 class FinanceManagerGUI(tkinter.Frame, FileDisplayListener, ModelUpdateListener, TableEditListener):
@@ -21,27 +21,27 @@ class FinanceManagerGUI(tkinter.Frame, FileDisplayListener, ModelUpdateListener,
         self.model: FinanceManagerModel = None
         self.color_manager: ColorManager = None
 
-        self.fd = FileDisplay(self)
+        self.fd: FileDisplay = FileDisplay(self)
         self.fd.set_listener(self)
         self.fd.grid(row=0, column=0, sticky=tkinter.NS)
 
         separator1 = Separator(self, orient="vertical")
         separator1.grid(row=0, column=1, sticky='ns')
 
-        self.tv = TableVisualizer(self)
+        self.tv: TableVisualizer = TableVisualizer(self)
         self.tv.add_listener(self)
         self.tv.grid(row=0, column=2)
 
         separator2 = Separator(self, orient="vertical")
         separator2.grid(row=0, column=3, sticky='ns')
 
-        self.dv = DataVisualizer(self, text="Data Visualizer")
+        self.dv: DataVisualizer = DataVisualizer(self, text="Data Visualizer")
         self.dv.grid(row=0, column=4)
 
-        if theme_name == "default":
-            self.set_color_manager(ColorManager(ColorThemes.default_theme))
-        elif theme_name == "dark":
-            self.set_color_manager(ColorManager(ColorThemes.dark_theme))
+        if theme_name == "dark":
+            self.set_color_manager(ColorManager(ColorTheme.get_dark_theme_dict()))
+        else:
+            self.set_color_manager(ColorManager(ColorTheme.get_default_theme_dict()))
 
     def set_database_path(self, path: pathlib.Path):
         self.model = FinanceManagerModel(path)
@@ -67,6 +67,7 @@ class FinanceManagerGUI(tkinter.Frame, FileDisplayListener, ModelUpdateListener,
     def update_colors(self):
         print("UPDATE COLORS IN FINANCE MANAGER GUI NOT DONE")
         self.fd.set_colors(self.color_manager.get_file_display_colors())
+        self.dv.set_colors(self.color_manager.get_data_visualizer_colors())
 
     @staticmethod
     def run():

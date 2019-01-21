@@ -1,5 +1,5 @@
 class ColorManager:
-    def __init__(self, col_dict):
+    def __init__(self, col_dict: {}):
         self.col_dict = col_dict
 
     def get_file_display_colors(self):
@@ -35,41 +35,72 @@ class ColorManager:
             return num
 
 
-class ColorThemes:
-    # default theme
-    default_file_display_colors = None
-    default_table_visualizer_colors = None
-    default_data_visualizer_colors = None
-    default_theme = {'FileDisplay': default_file_display_colors,
-                     'TableVisualizer': default_table_visualizer_colors,
-                     'DataVisualizer': default_data_visualizer_colors}
+class ColorTheme:
+    def __init__(self, bg_col: str, text_col: str, highlight_col: str, **optional_arguments):
+        self.bg_col = bg_col
+        if 'bg_col2' in optional_arguments:
+            self.bg_col2 = optional_arguments['bg_col2']
+        else:
+            self.bg_col2 = self.bg_col
+        self.text_col = text_col
+        self.highlight_col = highlight_col
 
-    # dark theme
-    dark_button_colors = {'button_bg_col': ColorManager.rgb_to_hex(0, 0, 0),
-                          'button_fg_col': ColorManager.rgb_to_hex(255, 255, 255),
-                          'button_pressed_bg': ColorManager.rgb_to_hex(0, 0, 0),
-                          'button_pressed_fg': ColorManager.rgb_to_hex(255, 255, 255)}
-    dark_file_display_colors = {'bg_col': ColorManager.rgb_to_hex(40, 40, 40),
-                                'button_colors': dark_button_colors,
-                                'date_selection_colors': {
-                                    'bg_col': ColorManager.rgb_to_hex(40, 40, 40),
-                                    'drop_down_colors': {
-                                        'bg': ColorManager.rgb_to_hex(40, 40, 40),
-                                        'text': ColorManager.rgb_to_hex(255, 255, 255),
-                                        'highlighted_color': ColorManager.rgb_to_hex(50, 50, 50)
-                                    },
-                                    'entry_colors': {
-                                        'bg': ColorManager.rgb_to_hex(40, 40, 40),
-                                        'text': ColorManager.rgb_to_hex(255, 255, 255)
-                                    },
-                                    'button_colors': dark_button_colors
-                                   }
-                                   }
-    dark_table_visualizer_colors = {}
-    dark_data_visualizer_colors = {}
-    dark_theme = {'FileDisplay': dark_file_display_colors,
-                  'TableVisualizer': dark_table_visualizer_colors,
-                  'DataVisualizer': dark_data_visualizer_colors}
+        self.button_colors = {'button_bg_col': self.bg_col,
+                              'button_text_col': self.text_col,
+                              'button_pressed_bg': self.bg_col,
+                              'button_pressed_text': self.text_col}
+        self.file_display_colors = {'bg_col': self.bg_col,
+                                    'button_colors': self.button_colors,
+                                    'date_selection_colors':
+                                        {
+                                            'bg_col': self.bg_col,
+                                            'drop_down_colors':
+                                                {
+                                                    'bg_col': self.bg_col,
+                                                    'text': self.text_col,
+                                                    'highlighted_color': self.bg_col2
+                                                },
+                                            'entry_colors':
+                                                {
+                                                    'bg_col': self.bg_col,
+                                                    'text': self.text_col,
+                                                    'cursor': self.text_col
+                                                },
+                                            'button_colors': self.button_colors
+                                        }
+                                    }
+        self.table_visualizer_colors = {}
+        self.data_visualizer_colors = {'bg_col': self.bg_col,
+
+                                       'pie_chart_colors':
+                                           {
+                                               'bg_col': self.bg_col,
+                                               'text_col': self.text_col,
+                                               'chart_col': self.highlight_col
+                                           }
+
+                                       }
+        self.theme = {'FileDisplay': self.file_display_colors,
+                      'TableVisualizer': self.table_visualizer_colors,
+                      'DataVisualizer': self.data_visualizer_colors}
+
+    @staticmethod
+    def get_dark_theme_dict() -> {}:
+        dark_bg_col = ColorManager.rgb_to_hex(40, 40, 40)
+        dark_bg_col2 = ColorManager.rgb_to_hex(50, 50, 50)
+        dark_text_col = ColorManager.rgb_to_hex(255, 255, 255)
+        dark_highlight_col = ColorManager.rgb_to_hex(120, 120, 120)
+        return ColorTheme(dark_bg_col, dark_text_col, dark_highlight_col, bg_col2=dark_bg_col2).theme
+
+    @staticmethod
+    def get_default_theme_dict() -> {}:
+        default_file_display_colors = None
+        default_table_visualizer_colors = None
+        default_data_visualizer_colors = None
+        default_theme = {'FileDisplay': default_file_display_colors,
+                         'TableVisualizer': default_table_visualizer_colors,
+                         'DataVisualizer': default_data_visualizer_colors}
+        return default_theme
 
 
 def test():
