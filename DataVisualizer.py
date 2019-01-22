@@ -32,11 +32,8 @@ class DataVisualizer(tkinter.LabelFrame):
             self.field_count = optional_arguments['field_count']
 
     def load_spending_by_category(self):
-        label_frame = tkinter.LabelFrame(self, text="Spending by Category - Table")
-        label_frame.grid(row=0)
-
         table_cell_width = [row_cell_width] * (self.field_count + 1)
-        self.category_table = TableWidget(label_frame, 2, self.field_count + 1, width_table=table_cell_width)
+        self.category_table = TableWidget(self, 2, self.field_count + 1, width_table=table_cell_width)
         header_values = ['Category', 'Amount']
         self.category_table.set_row_values(header_values, 0)
         self.category_table.grid(row=0)
@@ -53,12 +50,15 @@ class DataVisualizer(tkinter.LabelFrame):
         else:
             self.category_table.clear_labels()
             self.pie_chart.construct_empty_chart()
-        self.pie_chart.update_colors()
+        self.update_colors()
 
     def set_colors(self, color_dict: {str: str}):
         self.colors = color_dict
         self.update_colors()
 
     def update_colors(self):
+        print('update colors called')
         if self.colors is not None:
+            self.config(bg=self.colors['bg_col'], fg=self.colors['text_col'])
             self.pie_chart.set_colors(self.colors['pie_chart_colors'])
+            self.category_table.set_colors(self.colors['category_table_colors'])

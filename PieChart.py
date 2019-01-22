@@ -78,5 +78,3 @@ class PieChart(tkinter.LabelFrame):
                 self.construct_empty_chart(color=self.colors['chart_default_col'], text_col=self.colors['text_col'])
             self.label_text_col = self.colors['text_col']
             self.fig.patch.set_facecolor(self.colors['bg_col'])
-
-            print('pie chart update_colors not done')

@@ -49,7 +49,12 @@ class ColorTheme:
                               'button_text_col': self.text_col,
                               'button_pressed_bg': self.bg_col,
                               'button_pressed_text': self.text_col}
+        self.table_colors = {'bg_col': self.bg_col,
+                             'text_col': self.text_col
+
+                            }
         self.file_display_colors = {'bg_col': self.bg_col,
+                                    'text_col': self.text_col,
                                     'button_colors': self.button_colors,
                                     'date_selection_colors':
                                         {
@@ -69,14 +74,19 @@ class ColorTheme:
                                             'button_colors': self.button_colors
                                         }
                                     }
-        self.table_visualizer_colors = {}
+        self.table_visualizer_colors = {'bg_col': self.bg_col,
+                                        'text_col': self.fg_col,
+                                        'table_col': self.table_colors
+                                       }
         self.data_visualizer_colors = {'bg_col': self.bg_col,
+                                       'text_col': self.text_col,
                                        'pie_chart_colors':
                                            {
                                                'bg_col': self.bg_col,
                                                'text_col': self.text_col,
                                                'chart_default_col': self.highlight_col
-                                           }
+                                           },
+                                        'category_table_colors': self.table_colors
 
                                        }
         self.theme = {'FileDisplay': self.file_display_colors,

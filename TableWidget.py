@@ -17,11 +17,12 @@ class TableWidget(tkinter.Frame):
     def __init__(self, parent, col_size, default_row_size, **optional_arguments):
         # initializes the frame and its sub-frames
         tkinter.Frame.__init__(self, parent)
+        self.colors = None
         self.listener: TableEditListener = None
         self.col_size = col_size              # col size should remain constant (unless invert_axis)
         self.row_size = default_row_size      # rows can be inserted, hence the use of a LinkedList
         self.table = LinkedList([[None for i in range(self.col_size)] for j in range(self.row_size)])
-        self.display_matrix = None
+        self.display_matrix: [[tkinter.Label]] = None
         self.edit_buttons = None
 
         # setting up and processing additional arguments
@@ -255,7 +256,19 @@ class TableWidget(tkinter.Frame):
         label = self.display_matrix[row_index][col_index]
         label.config(text=matrix[row_index][col_index])
 
+    def set_colors(self, colors):
+        self.colors = colors
+        self.update_colors()
+
+    def update_colors(self):
+        if self.colors is not None:
+            self.config(bg=self.colors['bg_col'])
+            for row in self.display_matrix:
+                for label in row:
+                    label.config(bg=self.colors['bg_col'], fg=self.colors['text_col'])
+
     # HELPER METHODS
+    @staticmethod
     def format_as_currency(num: float) -> str:
         # converts a number to a currency format
         if num >= 0:
@@ -263,6 +276,7 @@ class TableWidget(tkinter.Frame):
         else:
             return '-${:,.2f}'.format(-num)
 
+    @staticmethod
     def unformat_from_currency(num: str) -> float:
         # converts the currency format to a number
         try:

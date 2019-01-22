@@ -2,7 +2,6 @@ import pathlib
 import tkinter
 from DateSelectionWidget import DateSelectionWidget
 from DateSelectionWidget import DateSelectionListener
-from FinanceManagerModel import FinanceManagerModel
 import os
 
 if os.name == 'nt':     #windows
@@ -21,12 +20,12 @@ month_list = ["January", "February", "March", "April", "May", "June",
               "July", "August", "September", "October", "November", "December"]
 
 
-class FileDisplay(tkinter.Frame, DateSelectionListener):
+class FileDisplay(tkinter.LabelFrame, DateSelectionListener):
     # is a widget that allows the user to choose which database to access
 
     def __init__(self, parent):
         # initializes the frame and its sub frames
-        tkinter.Frame.__init__(self, parent)
+        tkinter.LabelFrame.__init__(self, parent, text="File Selector")
         self.file_display_listener: FileDisplayListener = None
         self.colors = None
 
@@ -74,7 +73,7 @@ class FileDisplay(tkinter.Frame, DateSelectionListener):
 
     def update_colors(self):
         if self.colors is not None:
-            self.config(bg=self.colors['bg_col'])
+            self.config(bg=self.colors['bg_col'], fg=self.colors['text_col'])
             button_colors = self.colors['button_colors']
             for button in self.buttons:
                 button.config(fg=button_colors['button_text_col'],
