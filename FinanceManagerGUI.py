@@ -30,13 +30,13 @@ class FinanceManagerGUI(tkinter.Frame, FileDisplayListener, ModelUpdateListener,
 
         self.tv: TableVisualizer = TableVisualizer(self)
         self.tv.add_listener(self)
-        self.tv.grid(row=0, column=2)
+        self.tv.grid(row=0, column=2, sticky=tkinter.NS)
 
         separator2 = Separator(self, orient="vertical")
         separator2.grid(row=0, column=3, sticky='ns')
 
         self.dv: DataVisualizer = DataVisualizer(self, text="Data Visualizer")
-        self.dv.grid(row=0, column=4)
+        self.dv.grid(row=0, column=4, sticky=tkinter.NS)
 
         if theme_name == "dark":
             self.set_color_manager(ColorManager(ColorTheme.get_dark_theme_dict()))
@@ -68,6 +68,7 @@ class FinanceManagerGUI(tkinter.Frame, FileDisplayListener, ModelUpdateListener,
         print("UPDATE COLORS IN FINANCE MANAGER GUI NOT DONE")
         self.fd.set_colors(self.color_manager.get_file_display_colors())
         self.dv.set_colors(self.color_manager.get_data_visualizer_colors())
+        self.tv.set_colors(self.color_manager.get_table_visualizer_colors())
 
     @staticmethod
     def run():

@@ -7,12 +7,13 @@ defaultbg = 'black'
 defaultfg = 'white'
 
 
-class TableVisualizer(tkinter.Frame, TableEditListener):
+class TableVisualizer(tkinter.LabelFrame, TableEditListener):
     # is a widget that contains the 3 tables for the basic data
 
     def __init__(self, parent):
         # initializes the frame and its sub-frames
-        tkinter.Frame.__init__(self, parent)
+        tkinter.LabelFrame.__init__(self, parent, text="Expenditures and Balances")
+        self.colors = None
         self.table_edit_listener: TableEditListener = None
 
         # create an initial balance table
@@ -20,7 +21,7 @@ class TableVisualizer(tkinter.Frame, TableEditListener):
         self.initialBalance.grid(row=0, column=0)
 
         # create an expenditure table
-        self.expenditures = ExpenditureWidget(self)
+        self.expenditures: ExpenditureWidget = ExpenditureWidget(self)
         self.expenditures.add_listener(self)
         self.expenditures.grid(row=1, column=0)
 
@@ -39,3 +40,14 @@ class TableVisualizer(tkinter.Frame, TableEditListener):
 
     def send_edit_to_database(self, table_name: str, row_index: int, values):
         self.table_edit_listener.send_edit_to_database(table_name, row_index, values)
+
+    def set_colors(self, color_dict: {str: str}):
+        self.colors = color_dict
+        self.update_colors()
+
+    def update_colors(self):
+        if self.colors is not None:
+            self.config(bg=self.colors['bg_col'], fg=self.colors['text_col'])
+            self.expenditures.set_colors(self.colors['table_col'])
+            self.initialBalance.set_colors(self.colors['table_col'])
+            self.currentBalance.set_colors(self.colors['table_col'])

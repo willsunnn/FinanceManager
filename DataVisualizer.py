@@ -57,7 +57,6 @@ class DataVisualizer(tkinter.LabelFrame):
         self.update_colors()
 
     def update_colors(self):
-        print('update colors called')
         if self.colors is not None:
             self.config(bg=self.colors['bg_col'], fg=self.colors['text_col'])
             self.pie_chart.set_colors(self.colors['pie_chart_colors'])

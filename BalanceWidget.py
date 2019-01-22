@@ -17,6 +17,7 @@ class BalanceWidget(tkinter.Frame):
     def __init__(self, parent, **optional_arguments):
         # initialized the frame and subframes
         tkinter.Frame.__init__(self, parent)
+        self.colors = None
         self.field_count = default_field_count
 
         # set up and process the optional arguments
@@ -81,3 +82,13 @@ class BalanceWidget(tkinter.Frame):
 
         for blank_row_index in range(len(balance_matrix)+1,self.field_count+1):
             self.balance_table.set_row_values(['-']*self.balance_table.col_size, blank_row_index)
+
+    def set_colors(self, color_dict: {str: str}):
+        self.colors = color_dict
+        self.update_colors()
+
+    def update_colors(self):
+        if self.colors is not None:
+            self.config(bg=self.colors['bg_col'])
+            self.head_label.config(bg=self.colors['bg_col'], fg=self.colors['text_col'])
+            self.balance_table.set_colors(self.colors)

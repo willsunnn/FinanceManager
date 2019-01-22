@@ -17,6 +17,7 @@ class ExpenditureWidget(tkinter.Frame, TableEditListener):
     def __init__(self, parent, **optional_arguments):
         # initializes the frame and subframes
         tkinter.Frame.__init__(self, parent)
+        self.colors = None
         self.table_edit_listener: TableEditListener = None
         self.field_count = default_field_count
 
@@ -87,3 +88,13 @@ class ExpenditureWidget(tkinter.Frame, TableEditListener):
         # passes the row values to the listener to the DatabaseModel to be processed and stored in the database
         value_dict = {'amount': TableWidget.unformat_from_currency(values[0]), 'name': values[1], 'type': values[2]}
         self.table_edit_listener.send_edit_to_database(table_name, row_index, value_dict)
+
+    def set_colors(self, color_dict: {str: str}):
+        self.colors = color_dict
+        self.update_colors()
+
+    def update_colors(self):
+        if self.colors is not None:
+            self.config(bg=self.colors['bg_col'])
+            self.head_label.config(bg=self.colors['bg_col'], fg=self.colors['text_col'])
+            self.expenditure_table.set_colors(self.colors)
