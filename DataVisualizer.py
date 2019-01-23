@@ -33,19 +33,20 @@ class DataVisualizer(tkinter.LabelFrame):
 
     def load_spending_by_category(self):
         table_cell_width = [row_cell_width] * (self.field_count + 1)
-        self.category_table = TableWidget(self, 2, self.field_count + 1, width_table=table_cell_width)
-        header_values = ['Category', 'Amount']
-        self.category_table.set_row_values(header_values, 0)
+        self.category_table = TableWidget(self, 2, self.field_count, width_table=table_cell_width)
+        self.category_table.set_header_values(['Category', 'Amount'])
         self.category_table.grid(row=0)
 
     def load_table_data(self, expenditures_by_type: [[]]):
         if expenditures_by_type is not None and expenditures_by_type != []:
             labels = []
             values = []
+            table = []
             for row_index in range(len(expenditures_by_type)):
                 labels.append(expenditures_by_type[row_index][0])
                 values.append(expenditures_by_type[row_index][1])
-                self.category_table.set_row_values([labels[row_index], TableWidget.format_as_currency(values[row_index])], row_index+1)
+                table.append([expenditures_by_type[row_index][0], expenditures_by_type[row_index][1]])
+            self.category_table.load_table_data(table)
             self.pie_chart.construct_pie_chart(labels, values, text_col=self.pie_chart.label_text_col)
         else:
             self.category_table.clear_labels()

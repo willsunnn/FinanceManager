@@ -2,7 +2,7 @@ import tkinter
 from TableWidget import TableWidget
 from TableWidget import TableEditListener
 
-default_field_count = 10
+default_field_count = 5
 default_field_col_widths = [6,12,12]
 
 default_title_font = ("Helvetica", 16)
@@ -58,31 +58,25 @@ class ExpenditureWidget(tkinter.Frame, TableEditListener):
 
     def setup_expenditure_table(self):
         # adds the expenditure table
-        table_cell_width = [default_field_col_widths] * (self.field_count + 1)
-        # invert_axis is false because the data will be added in rows
         self.expenditure_table = TableWidget(self, 3, self.field_count + 1, table_name="expenditures",
-                                             invert_axis=False, width_table=table_cell_width, head_font=self.head_font,
-                                             entry_font=self.entry_font)
+                                             invert_axis=False, column_widths=default_field_col_widths,
+                                             head_font=self.head_font, entry_font=self.entry_font)
         self.expenditure_table.add_listener(self)
-        header_values = ['Amount', 'Name', 'Type']
-        self.expenditure_table.set_row_values(header_values, 0)
+        self.expenditure_table.set_header_values(['Amount', 'Name', 'Type'])
         self.expenditure_table.pack()
 
     def set_editable(self, editable: bool):
         # passes the editable variable to the table widget to be appropriately handled
         self.expenditure_table.set_editable(editable)
 
-    def set_expenditures(self, expenditure_matrix:[[]]):
+    def set_expenditures(self, expenditure_matrix: [[]]):
         # passes the label values to the table to be inserted into the labels
-        self.set_editable(True)
-        for entry_index in range(len(expenditure_matrix)):
-            label_row_index = entry_index+1
-            values = [TableWidget.format_as_currency(expenditure_matrix[entry_index][1]),
-                      expenditure_matrix[entry_index][2], expenditure_matrix[entry_index][3]]
-            self.expenditure_table.set_row_values(values, label_row_index)
-
-        for blank_row_index in range(len(expenditure_matrix)+1,self.field_count+1):
-            self.expenditure_table.set_row_values(['-']*self.expenditure_table.col_size, blank_row_index)
+        table = []
+        for row_index in range(len(expenditure_matrix)):
+            values = [TableWidget.format_as_currency(expenditure_matrix[row_index][1]),
+                      expenditure_matrix[row_index][2], expenditure_matrix[row_index][3]]
+            table.append(values)
+        self.expenditure_table.load_table_data(table)
 
     def send_edit_to_database(self, table_name: str, row_index: int, values):
         # passes the row values to the listener to the DatabaseModel to be processed and stored in the database

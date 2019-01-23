@@ -65,7 +65,6 @@ class FinanceManagerGUI(tkinter.Frame, FileDisplayListener, ModelUpdateListener,
         self.update_colors()
 
     def update_colors(self):
-        print("UPDATE COLORS IN FINANCE MANAGER GUI NOT DONE")
         self.fd.set_colors(self.color_manager.get_file_display_colors())
         self.dv.set_colors(self.color_manager.get_data_visualizer_colors())
         self.tv.set_colors(self.color_manager.get_table_visualizer_colors())
@@ -76,7 +75,7 @@ class FinanceManagerGUI(tkinter.Frame, FileDisplayListener, ModelUpdateListener,
         tk = tkinter.Tk()
         gui = FinanceManagerGUI(tk, "dark")
         tk.title("Finance Manager")
-        gui.pack()
+        gui.grid(row=0, column=0)
         tk.mainloop()
 
 

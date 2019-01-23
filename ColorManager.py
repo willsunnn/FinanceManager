@@ -42,16 +42,21 @@ class ColorTheme:
             self.bg_col2 = optional_arguments['bg_col2']
         else:
             self.bg_col2 = self.bg_col
+        if 'highlighted_text' in optional_arguments:
+            self.highlighted_text = optional_arguments['highlighted_text']
+        else:
+            self.highlighted_text = text_col
         self.text_col = text_col
         self.highlight_col = highlight_col
 
         self.button_colors = {'button_bg_col': self.bg_col,
                               'button_text_col': self.text_col,
-                              'button_pressed_bg': self.bg_col,
-                              'button_pressed_text': self.text_col}
+                              'button_pressed_bg': self.bg_col2,
+                              'button_pressed_text': self.bg_col2}
         self.table_colors = {'bg_col': self.bg_col,
-                             'text_col': self.text_col
-                            }
+                             'text_col': self.text_col,
+                             'button_col': self.button_colors,
+                             }
         self.file_display_colors = {'bg_col': self.bg_col,
                                     'text_col': self.text_col,
                                     'button_colors': self.button_colors,
@@ -94,10 +99,12 @@ class ColorTheme:
     @staticmethod
     def get_dark_theme_dict() -> {}:
         dark_bg_col = ColorManager.rgb_to_hex(40, 40, 40)
-        dark_bg_col2 = ColorManager.rgb_to_hex(50, 50, 50)
+        dark_bg_col2 = ColorManager.rgb_to_hex(60, 60, 60)
         dark_text_col = ColorManager.rgb_to_hex(255, 255, 255)
         dark_highlight_col = ColorManager.rgb_to_hex(190, 190, 190)
-        return ColorTheme(dark_bg_col, dark_text_col, dark_highlight_col, bg_col2=dark_bg_col2).theme
+        dark_highlighted_text = ColorManager.rgb_to_hex(100, 100, 100)
+        return ColorTheme(dark_bg_col, dark_text_col, dark_highlight_col, bg_col2=dark_bg_col2,
+                          highlighted_text=dark_highlighted_text).theme
 
     @staticmethod
     def get_default_theme_dict() -> {}:

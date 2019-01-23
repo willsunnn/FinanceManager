@@ -1,9 +1,9 @@
 import tkinter
 from TableWidget import TableWidget
+from TableWidget import TableEditListener
 
 default_field_count = 4
-default_first_col_width = 10
-default_field_col_width = 7
+default_field_col_widths = [10, 7, 7]
 
 default_title_font = ("Helvetica", 16)
 default_table_head_font = ("Helvetica", 14)
@@ -15,7 +15,7 @@ class BalanceWidget(tkinter.Frame):
     # is a widget that tells the user the balance and the sum
 
     def __init__(self, parent, **optional_arguments):
-        # initialized the frame and subframes
+        # initialized the frame and sub frames
         tkinter.Frame.__init__(self, parent)
         self.colors = None
         self.field_count = default_field_count
@@ -60,28 +60,23 @@ class BalanceWidget(tkinter.Frame):
         self.head_label.pack()
 
     def setup_balance_table(self):
-        # initializes the table that actually holds the balances
-        table_cell_width = [[default_first_col_width, default_first_col_width]] \
-                           + [[default_field_col_width, default_field_col_width] for x in range(self.field_count)]
         # invert_axis is True because the data will be added in cols
-        self.balance_table = TableWidget(self, 2, self.field_count + 1, table_name=self.table_widget_name,
-                                         invert_axis=True, width_table=table_cell_width,
-                                         additional_cell_width=default_field_col_width, head_font=self.head_font,
-                                         entry_font=self.entry_font)
+        self.balance_table = TableWidget(self, 2, self.field_count, table_name=self.title_text,
+                                         invert_axis=True, column_widths=default_field_col_widths,
+                                         head_font=self.head_font, entry_font=self.entry_font)
         self.balance_table.add_listener(self)
-        header_values = ['Source', 'Amount']
-        self.balance_table.set_row_values(header_values, 0)
+        self.balance_table.set_header_values(['Source', 'Amount'])
+        self.balance_table.set_header_values(['Source', 'Amount'])
         self.balance_table.pack()
 
     def set_balances(self, balance_matrix: [[]]):
         # sets the values in the balances table given the balance matrix
-        for entry_index in range(len(balance_matrix)):
-            display_row_index = entry_index+1
-            values = [balance_matrix[entry_index][1], TableWidget.format_as_currency(balance_matrix[entry_index][2])]
-            self.balance_table.set_row_values(values, display_row_index)
-
-        for blank_row_index in range(len(balance_matrix)+1,self.field_count+1):
-            self.balance_table.set_row_values(['-']*self.balance_table.col_size, blank_row_index)
+        table = []
+        for row_index in range(len(balance_matrix)):
+            values = [balance_matrix[row_index][1],
+                      TableWidget.format_as_currency(balance_matrix[row_index][2])]
+            table.append(values)
+        self.balance_table.load_table_data(table)
 
     def set_colors(self, color_dict: {str: str}):
         self.colors = color_dict
