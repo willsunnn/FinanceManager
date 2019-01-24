@@ -20,11 +20,12 @@ class TableWidget(tkinter.Frame):
         self.colors = None
         self.listener: TableEditListener = None
         self.col_size = col_size
+        self.hiding_config = False
 
         # setting up and processing additional arguments
         self.invert_axis = False
         self.column_widths = None
-        self.additional_cell_width = None
+        self.header_widths = None
         self.head_font = None
         self.entry_font = None
         self.entry_fields = None
@@ -44,7 +45,7 @@ class TableWidget(tkinter.Frame):
         self.setup_table()
 
         # set up the add button of the widget
-        self.add_button = None
+        self.add_button: tkinter.Button = None
         self.setup_add_button()
 
         # set up the config buttons of the widget
@@ -64,6 +65,8 @@ class TableWidget(tkinter.Frame):
         # allows for greater control over customization of the label widths
         if 'column_widths' in optional_arguments:
             self.column_widths = optional_arguments['column_widths']
+        if 'header_widths' in optional_arguments:
+            self.header_widths = optional_arguments['header_widths']
 
         # sets the table's header fonts and label fonts
         if 'head_font' in optional_arguments:
@@ -83,7 +86,11 @@ class TableWidget(tkinter.Frame):
     def setup_header(self):
         self.header_row = []
         for col_index in range(self.col_size):
-            label = tkinter.Label(self, text="-", font=self.head_font, justify=self.head_justify)
+            if self.header_widths is not None:
+                width = self.header_widths[col_index]
+            else:
+                width = None
+            label = tkinter.Label(self, text="-", font=self.head_font, justify=self.head_justify, width=width)
             if not self.invert_axis:
                 label.grid(row=0, column=col_index)
             else:
@@ -170,7 +177,6 @@ class TableWidget(tkinter.Frame):
             self.setup_row(new_row_index)
             self.setup_row_of_config_buttons(new_row_index)
         self.show_config_buttons()
-        self.config_buttons.print()
         self.update_colors()
 
     def setup_add_button(self):
@@ -182,10 +188,11 @@ class TableWidget(tkinter.Frame):
         self.refresh_add_button_location()
 
     def refresh_add_button_location(self):
-        if not self.invert_axis:
-            self.add_button.grid(row=1+self.display_matrix.get_length(), column=1)
-        else:
-            self.add_button.grid(row=0, column=1+self.display_matrix.get_length())
+        if not self.hiding_config:
+            if not self.invert_axis:
+                self.add_button.grid(row=1+self.display_matrix.get_length(), column=0, columnspan=self.col_size+2, sticky="EW")
+            else:
+                self.add_button.grid(row=0, column=1+self.display_matrix.get_length())
 
     def setup_config_buttons(self):
         self.hide_config_buttons()
@@ -203,13 +210,17 @@ class TableWidget(tkinter.Frame):
         self.config_buttons.set_value(row, row_index)
 
     def hide_config_buttons(self):
+        self.hiding_config = True
         if self.config_buttons is not None:
             for row in self.config_buttons.to_list():
                 for widget in row:
                     if widget is not None:
                         widget.grid_forget()
+        if self.add_button is not None:
+            self.add_button.grid_forget()
 
     def show_config_buttons(self):
+        self.hiding_config = False
         if self.config_buttons is not None:
             for row_index in range(self.config_buttons.get_length()):
                 row = self.config_buttons.get_value_at(row_index)
@@ -219,6 +230,8 @@ class TableWidget(tkinter.Frame):
                         button.grid(row=row_index+1, column=col_index+self.col_size)
                     else:
                         button.grid(row=col_index + self.col_size, column=row_index + 1)
+        if self.add_button is not None:
+            self.refresh_add_button_location()
 
     def edit_pressed(self, button: tkinter.Button):
         # changes the edit button to back and changes labels to fields

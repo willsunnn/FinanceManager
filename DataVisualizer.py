@@ -4,8 +4,10 @@ from TableWidget import TableWidget
 from PieChart import PieChart
 
 matplotlib.use('TkAgg')
-default_field_count = 2
+default_field_count = 4
 row_cell_width = [0, 7]     # if width is 0, label expands to show text
+default_table_head_font = ("Helvetica", 14)
+default_entry_font = ("Helvetica", 11)
 
 
 class DataVisualizer(tkinter.LabelFrame):
@@ -33,7 +35,9 @@ class DataVisualizer(tkinter.LabelFrame):
 
     def load_spending_by_category(self):
         table_cell_width = [row_cell_width] * (self.field_count + 1)
-        self.category_table = TableWidget(self, 2, self.field_count, width_table=table_cell_width)
+        self.category_table = TableWidget(self, 2, self.field_count, width_table=table_cell_width,
+                                             head_font=default_table_head_font, entry_font=default_entry_font)
+        self.category_table.hide_config_buttons()
         self.category_table.set_header_values(['Category', 'Amount'])
         self.category_table.grid(row=0)
 

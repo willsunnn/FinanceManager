@@ -3,8 +3,8 @@ from BalanceWidget import BalanceWidget
 from ExpenditureWidget import ExpenditureWidget
 from TableWidget import TableEditListener
 
-defaultbg = 'black'
-defaultfg = 'white'
+default_pad_x = 10
+default_pad_y = 3
 
 
 class TableVisualizer(tkinter.LabelFrame, TableEditListener):
@@ -18,16 +18,18 @@ class TableVisualizer(tkinter.LabelFrame, TableEditListener):
 
         # create an initial balance table
         self.initialBalance = BalanceWidget(self, name='Initial Balance')
-        self.initialBalance.grid(row=0, column=0)
+        self.initialBalance.add_listener(self)
+        self.initialBalance.grid(row=0, padx=default_pad_x, pady=default_pad_y)
 
         # create an expenditure table
         self.expenditures: ExpenditureWidget = ExpenditureWidget(self)
         self.expenditures.add_listener(self)
-        self.expenditures.grid(row=1, column=0)
+        self.expenditures.grid(row=1, padx=default_pad_x, pady=default_pad_y)
 
         # create a final balances table
         self.currentBalance = BalanceWidget(self, name='Current Balance')
-        self.currentBalance.grid(row=2, column=0)
+        self.initialBalance.add_listener(self)
+        self.currentBalance.grid(row=2, padx=default_pad_x, pady=default_pad_y)
 
     def add_listener(self, listener: TableEditListener):
         self.table_edit_listener = listener

@@ -32,6 +32,11 @@ class ExpenditureWidget(tkinter.Frame, TableEditListener):
         self.head_label = None
         self.setup_title_label()
 
+        # setup the edit button
+        self.edit_button = None
+        self.done_button = None
+        self.setup_edit_button()
+
         # setup the expenditure table
         self.expenditure_table = None
         self.setup_expenditure_table()
@@ -54,7 +59,7 @@ class ExpenditureWidget(tkinter.Frame, TableEditListener):
         # adds a title label above the table
         self.head_label = tkinter.Label(self)
         self.head_label.config(text=self.title_text, font=self.title_font)
-        self.head_label.pack()
+        self.head_label.grid(row=0, column=0, sticky="E")
 
     def setup_expenditure_table(self):
         # adds the expenditure table
@@ -63,11 +68,22 @@ class ExpenditureWidget(tkinter.Frame, TableEditListener):
                                              head_font=self.head_font, entry_font=self.entry_font)
         self.expenditure_table.add_listener(self)
         self.expenditure_table.set_header_values(['Amount', 'Name', 'Type'])
-        self.expenditure_table.pack()
+        self.expenditure_table.grid(row=1, columnspan=2)
 
-    def set_editable(self, editable: bool):
-        # passes the editable variable to the table widget to be appropriately handled
-        self.expenditure_table.set_editable(editable)
+    def setup_edit_button(self):
+        self.edit_button = tkinter.Button(self, text="Edit", command=lambda: self.edit_pressed())
+        self.done_button = tkinter.Button(self, text="Done", command=lambda: self.done_pressed())
+        self.done_button.grid(row=0, column=1, sticky="W")
+
+    def edit_pressed(self):
+        self.expenditure_table.show_config_buttons()
+        self.edit_button.grid_forget()
+        self.done_button.grid(row=0, column=1, sticky="W")
+
+    def done_pressed(self):
+        self.expenditure_table.hide_config_buttons()
+        self.done_button.grid_forget()
+        self.edit_button.grid(row=0, column=1, sticky="W")
 
     def set_expenditures(self, expenditure_matrix: [[]]):
         # passes the label values to the table to be inserted into the labels
@@ -92,3 +108,11 @@ class ExpenditureWidget(tkinter.Frame, TableEditListener):
             self.config(bg=self.colors['bg_col'])
             self.head_label.config(bg=self.colors['bg_col'], fg=self.colors['text_col'])
             self.expenditure_table.set_colors(self.colors)
+            self.edit_button.config(fg=self.colors['button_col']['button_text_col'],
+                                    highlightbackground=self.colors['button_col']['button_bg_col'],
+                                    activeforeground=self.colors['button_col']['button_pressed_text'],
+                                    activebackground=self.colors['button_col']['button_pressed_bg'])
+            self.done_button.config(fg=self.colors['button_col']['button_text_col'],
+                                    highlightbackground=self.colors['button_col']['button_bg_col'],
+                                    activeforeground=self.colors['button_col']['button_pressed_text'],
+                                    activebackground=self.colors['button_col']['button_pressed_bg'])

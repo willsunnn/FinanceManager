@@ -59,6 +59,15 @@ class FinanceManagerGUI(tkinter.Frame, FileDisplayListener, ModelUpdateListener,
                 self.model.update_expenditure_values(primary_user_key, values)
             except IndexError:          # This means the database was empty at that row index
                 self.model.add_expenditure(values['amount'], values['name'], values['type'])
+        else:
+            try:
+                if table_name=="initialBalances":
+                    primary_user_key = self.model.fetch_initial_balances()[row_index][0]
+                else:
+                    primary_user_key = self.model.fetch_current_balances()[row_index][0]
+                self.model.update_table_values(table_name, primary_user_key, values)
+            except IndexError:
+                print("ERROR")
 
     def set_color_manager(self, color_manager: ColorManager):
         self.color_manager = color_manager
