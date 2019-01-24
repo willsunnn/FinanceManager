@@ -74,6 +74,12 @@ class FinanceManagerModel:
         self.db.commit()
         self.data_updated()
 
+    def add_balance(self, table_name:str, amount: float, name:str):
+        self.db.execute("INSERT INTO {} (source, amount) VALUES((?), (?));".format(table_name),
+                        [name, amount])
+        self.db.commit()
+        self.data_updated()
+
     def update_expenditure_values(self, primary_user_key: int, values):
         # updates the values of the primary_user_key in expenditure_table
         self.update_table_values('expenditures', primary_user_key, values)

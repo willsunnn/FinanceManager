@@ -2,7 +2,7 @@ import tkinter
 from TableWidget import TableWidget
 from TableWidget import TableEditListener
 
-default_field_count = 4
+default_field_count = 1
 default_field_col_widths = [7, 7]
 default_header_widths = [12, 12]
 

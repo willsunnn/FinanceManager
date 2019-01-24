@@ -67,7 +67,7 @@ class FinanceManagerGUI(tkinter.Frame, FileDisplayListener, ModelUpdateListener,
                     primary_user_key = self.model.fetch_current_balances()[row_index][0]
                 self.model.update_table_values(table_name, primary_user_key, values)
             except IndexError:
-                print("ERROR")
+                self.model.add_balance(table_name, values['amount'], values['source'])
 
     def set_color_manager(self, color_manager: ColorManager):
         self.color_manager = color_manager

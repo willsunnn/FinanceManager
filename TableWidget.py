@@ -159,6 +159,7 @@ class TableWidget(tkinter.Frame):
                 row[col_index] = None
 
     def load_table_data(self, data: [[]]):
+        self.clear_data_table()
         if len(data) > self.data_table.get_length():
             self.increase_row_length(len(data))
 
@@ -176,7 +177,8 @@ class TableWidget(tkinter.Frame):
         for new_row_index in range(og_length, new_row_index):
             self.setup_row(new_row_index)
             self.setup_row_of_config_buttons(new_row_index)
-        self.show_config_buttons()
+        if not self.hiding_config:      # if config should not be hidden
+            self.show_config_buttons()
         self.update_colors()
 
     def setup_add_button(self):
@@ -236,7 +238,10 @@ class TableWidget(tkinter.Frame):
     def edit_pressed(self, button: tkinter.Button):
         # changes the edit button to back and changes labels to fields
         button.config(text="Done", command=lambda b=button: self.done_pressed(b))
-        row_index = int(button.grid_info()['row'])-1
+        if not self.invert_axis:
+            row_index = int(button.grid_info()['row'])-1
+        else:
+            row_index = int(button.grid_info()['column']-1)
         entry_fields = [tkinter.Entry(self) for _ in range(self.col_size)]
         for entry_index in range(self.col_size):
             entry = entry_fields[entry_index]
@@ -257,7 +262,10 @@ class TableWidget(tkinter.Frame):
     def done_pressed(self, button: tkinter.Button):
         # changes the done button back to edit, changes fields to labels, and sends data to the database
         button.config(text="Edit", command=lambda b=button: self.edit_pressed(b))
-        row_index = int(button.grid_info()['row'])-int(1)
+        if not self.invert_axis:
+            row_index = int(button.grid_info()['row'])-1
+        else:
+            row_index = int(button.grid_info()['column']-1)
         values = []
         for label_index in range(self.col_size):
             entry = self.entry_matrix.get_value_at(row_index)[label_index]
@@ -320,7 +328,8 @@ class TableWidget(tkinter.Frame):
     def set_field_text(entry: tkinter.Entry, text: str):
         # sets a field's text to text
         entry.delete(0, tkinter.END)
-        entry.insert(0, text)
+        if text is not None:
+            entry.insert(0, text)
 
     def set_colors(self, colors):
         self.colors = colors

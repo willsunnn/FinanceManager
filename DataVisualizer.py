@@ -49,7 +49,8 @@ class DataVisualizer(tkinter.LabelFrame):
             for row_index in range(len(expenditures_by_type)):
                 labels.append(expenditures_by_type[row_index][0])
                 values.append(expenditures_by_type[row_index][1])
-                table.append([expenditures_by_type[row_index][0], expenditures_by_type[row_index][1]])
+                table.append([expenditures_by_type[row_index][0],
+                              TableWidget.format_as_currency(expenditures_by_type[row_index][1])])
             self.category_table.load_table_data(table)
             self.pie_chart.construct_pie_chart(labels, values, text_col=self.pie_chart.label_text_col)
         else:

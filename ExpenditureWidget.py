@@ -18,6 +18,7 @@ class ExpenditureWidget(tkinter.Frame, TableEditListener):
         # initializes the frame and subframes
         tkinter.Frame.__init__(self, parent)
         self.colors = None
+        self.expenditures_set = False
         self.table_edit_listener: TableEditListener = None
         self.field_count = default_field_count
 
@@ -66,6 +67,7 @@ class ExpenditureWidget(tkinter.Frame, TableEditListener):
         self.expenditure_table = TableWidget(self, 3, self.field_count + 1, table_name="expenditures",
                                              invert_axis=False, column_widths=default_field_col_widths,
                                              head_font=self.head_font, entry_font=self.entry_font)
+        self.expenditure_table.hide_config_buttons()
         self.expenditure_table.add_listener(self)
         self.expenditure_table.set_header_values(['Amount', 'Name', 'Type'])
         self.expenditure_table.grid(row=1, columnspan=2)
@@ -73,12 +75,13 @@ class ExpenditureWidget(tkinter.Frame, TableEditListener):
     def setup_edit_button(self):
         self.edit_button = tkinter.Button(self, text="Edit", command=lambda: self.edit_pressed())
         self.done_button = tkinter.Button(self, text="Done", command=lambda: self.done_pressed())
-        self.done_button.grid(row=0, column=1, sticky="W")
+        self.edit_button.grid(row=0, column=1, sticky="W")
 
     def edit_pressed(self):
-        self.expenditure_table.show_config_buttons()
-        self.edit_button.grid_forget()
-        self.done_button.grid(row=0, column=1, sticky="W")
+        if self.expenditures_set:
+            self.expenditure_table.show_config_buttons()
+            self.edit_button.grid_forget()
+            self.done_button.grid(row=0, column=1, sticky="W")
 
     def done_pressed(self):
         self.expenditure_table.hide_config_buttons()
@@ -87,6 +90,7 @@ class ExpenditureWidget(tkinter.Frame, TableEditListener):
 
     def set_expenditures(self, expenditure_matrix: [[]]):
         # passes the label values to the table to be inserted into the labels
+        self.expenditures_set = True
         table = []
         for row_index in range(len(expenditure_matrix)):
             values = [TableWidget.format_as_currency(expenditure_matrix[row_index][1]),

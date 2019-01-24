@@ -28,7 +28,7 @@ class TableVisualizer(tkinter.LabelFrame, TableEditListener):
 
         # create a final balances table
         self.currentBalance = BalanceWidget(self, name='Current Balance')
-        self.initialBalance.add_listener(self)
+        self.currentBalance.add_listener(self)
         self.currentBalance.grid(row=2, padx=default_pad_x, pady=default_pad_y)
 
     def add_listener(self, listener: TableEditListener):
