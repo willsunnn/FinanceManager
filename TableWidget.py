@@ -4,6 +4,9 @@ default_cell_width = 5
 default_header_justify = 'center'
 default_entry_justify = 'left'
 direction_to_compass = {'center': 'center', 'left': 'w', "right": 'e'}
+default_pad_x = 3
+default_pad_y = 1
+default_pad_header = 5
 
 
 class TableEditListener:
@@ -30,8 +33,8 @@ class TableWidget(tkinter.Frame):
         self.entry_font = None
         self.entry_fields = None
         self.table_name = None
-        self.entry_justify = default_entry_justify
-        self.head_justify = default_header_justify
+        self.entry_justify_list = [default_entry_justify]*self.col_size
+        self.head_justify_list = [default_header_justify]*self.col_size
         self.process_optional_arguments(optional_arguments)
 
         # set up the header labels of the table widget
@@ -78,10 +81,10 @@ class TableWidget(tkinter.Frame):
             self.table_name = optional_arguments['table_name']
 
         # sets the table's header and entry justify constraints
-        if 'head_justify' in optional_arguments:
-            self.head_justify = optional_arguments['head_justify']
-        if 'entry_justify' in optional_arguments:
-            self.entry_justify = optional_arguments['entry_justify']
+        if 'head_justify_list' in optional_arguments:
+            self.head_justify_list = optional_arguments['head_justify_list']
+        if 'entry_justify_list' in optional_arguments:
+            self.entry_justify_list = optional_arguments['entry_justify_list']
 
     def setup_header(self):
         self.header_row = []
@@ -90,11 +93,12 @@ class TableWidget(tkinter.Frame):
                 width = self.header_widths[col_index]
             else:
                 width = None
-            label = tkinter.Label(self, text="-", font=self.head_font, justify=self.head_justify, width=width)
+            label = tkinter.Label(self, text="-", font=self.head_font,
+                                  anchor=direction_to_compass[self.head_justify_list[col_index]], width=width)
             if not self.invert_axis:
-                label.grid(row=0, column=col_index)
+                label.grid(row=0, column=col_index, pady=default_pad_header, padx=default_pad_x, sticky="EW")
             else:
-                label.grid(row=col_index, column=0)
+                label.grid(row=col_index, column=0, padx=default_pad_header, pady=default_pad_x, sticky="EW")
             self.header_row.append(label)
 
     def set_header_values(self, values):
@@ -130,13 +134,14 @@ class TableWidget(tkinter.Frame):
                 width = self.column_widths[col_index]
             else:
                 width = None
-            label.config(width=width, font=self.entry_font, anchor=direction_to_compass[self.entry_justify])
+            label.config(width=width, font=self.entry_font,
+                         anchor=direction_to_compass[self.entry_justify_list[col_index]])
 
             # position the label
             if self.invert_axis:
-                label.grid(row=col_index, column=row_index+1)
+                label.grid(row=col_index, column=row_index+1, sticky="EW", pady=default_pad_y, padx=default_pad_x)
             else:
-                label.grid(row=row_index+1, column=col_index)
+                label.grid(row=row_index+1, column=col_index, sticky="EW", pady=default_pad_y, padx=default_pad_x)
 
     def set_value(self, value, row_index, col_index):
         # sets the text in the label at the given position
@@ -155,10 +160,8 @@ class TableWidget(tkinter.Frame):
     def clear_data_table(self):
         for row_index in range(self.data_table.get_length()):
             row = self.data_table.get_value_at(row_index)
-            print(row)
             for col_index in range(self.col_size):
                 row[col_index] = None
-            print(row)
         self.update_all_label_texts()
 
     def load_table_data(self, data: [[]]):

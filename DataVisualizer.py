@@ -36,7 +36,8 @@ class DataVisualizer(tkinter.LabelFrame):
     def load_spending_by_category(self):
         table_cell_width = [row_cell_width] * (self.field_count + 1)
         self.category_table = TableWidget(self, 2, self.field_count, width_table=table_cell_width,
-                                             head_font=default_table_head_font, entry_font=default_entry_font)
+                                          head_font=default_table_head_font, entry_font=default_entry_font,
+                                          entry_justify_list=["right", "left"], head_justify_list=["right", "left"])
         self.category_table.hide_config_buttons()
         self.category_table.set_header_values(['Category', 'Amount'])
         self.category_table.grid(row=0)
