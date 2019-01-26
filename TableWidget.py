@@ -155,8 +155,11 @@ class TableWidget(tkinter.Frame):
     def clear_data_table(self):
         for row_index in range(self.data_table.get_length()):
             row = self.data_table.get_value_at(row_index)
-            for col_index in range(1, self.col_size):
+            print(row)
+            for col_index in range(self.col_size):
                 row[col_index] = None
+            print(row)
+        self.update_all_label_texts()
 
     def load_table_data(self, data: [[]]):
         self.clear_data_table()

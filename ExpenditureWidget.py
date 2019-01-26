@@ -3,7 +3,7 @@ from TableWidget import TableWidget
 from TableWidget import TableEditListener
 
 default_field_count = 5
-default_field_col_widths = [6,12,12]
+default_field_col_widths = [6, 12, 12]
 
 default_title_font = ("Helvetica", 16)
 default_table_head_font = ("Helvetica", 14)
@@ -15,7 +15,7 @@ class ExpenditureWidget(tkinter.Frame, TableEditListener):
     # is a widget that displays the expenditures in the database
 
     def __init__(self, parent, **optional_arguments):
-        # initializes the frame and subframes
+        # initializes the frame and sub frames
         tkinter.Frame.__init__(self, parent)
         self.colors = None
         self.expenditures_set = False

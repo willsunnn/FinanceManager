@@ -21,6 +21,7 @@ class BalanceWidget(tkinter.Frame):
         self.colors = None
         self.table_edit_listener: TableEditListener = None
         self.field_count = default_field_count
+        self.expenditures_set = False
 
         # set up and process the optional arguments
         self.title_font = default_title_font
@@ -76,9 +77,10 @@ class BalanceWidget(tkinter.Frame):
         self.edit_button.grid(row=0, column=1, sticky="W")
 
     def edit_pressed(self):
-        self.balance_table.show_config_buttons()
-        self.edit_button.grid_forget()
-        self.done_button.grid(row=0, column=1, sticky="W")
+        if self.expenditures_set:
+            self.balance_table.show_config_buttons()
+            self.edit_button.grid_forget()
+            self.done_button.grid(row=0, column=1, sticky="W")
 
     def done_pressed(self):
         self.balance_table.hide_config_buttons()
@@ -108,6 +110,7 @@ class BalanceWidget(tkinter.Frame):
                       TableWidget.format_as_currency(balance_matrix[row_index][2])]
             table.append(values)
         self.balance_table.load_table_data(table)
+        self.expenditures_set = True
 
     def set_colors(self, color_dict: {str: str}):
         self.colors = color_dict
