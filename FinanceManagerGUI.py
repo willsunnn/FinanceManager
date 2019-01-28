@@ -48,8 +48,10 @@ class FinanceManagerGUI(tkinter.Frame, FileDisplayListener, ModelUpdateListener,
         self.model.add_listener(self)
 
     def data_updated(self):
-        self.tv.load_table_data(self.model.fetch_databases())
-        self.dv.load_table_data(self.model.fetch_expenditures_by_type())
+        databases = self.model.fetch_databases()
+        self.tv.load_table_data(databases)
+        self.dv.load_table_data(self.model.fetch_expenditures_by_type(), databases['initial balances'],
+                                databases['current balances'])
 
     def send_edit_to_database(self, table_name: str, row_index: int, values):
         # sends the new data from the modified table widgets to the DatabaseManager
@@ -85,6 +87,7 @@ class FinanceManagerGUI(tkinter.Frame, FileDisplayListener, ModelUpdateListener,
         gui = FinanceManagerGUI(tk, "dark")
         tk.title("Finance Manager")
         gui.grid(row=0, column=0)
+        tk.resizable(False, False)
         tk.mainloop()
 
 

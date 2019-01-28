@@ -90,7 +90,8 @@ class ColorTheme:
                                                'text_col': self.text_col,
                                                'chart_default_col': self.highlight_col
                                            },
-                                       'category_table_colors': self.table_colors
+                                       'category_table_colors': self.table_colors,
+                                       'totals_table_colors': self.table_colors
                                        }
         self.theme = {'FileDisplay': self.file_display_colors,
                       'TableVisualizer': self.table_visualizer_colors,
